@@ -6,6 +6,13 @@
   "configurations": [
     {
       "type": "java",
+      "name": "EncoderReader",
+      "request": "launch",
+      "mainClass": "frc.robot.subsystems.EncoderReader",
+      "projectName": "hanabi_project"
+    },
+    {
+      "type": "java",
       "name": "Main",
       "request": "launch",
       "mainClass": "frc.robot.Main",
