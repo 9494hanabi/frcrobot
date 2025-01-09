@@ -29,12 +29,13 @@ public class Robot extends TimedRobot {
   // ----------------------
   Joystick joystick = new Joystick(0);
 
+
   // ----------------------
   // Module1
   // ----------------------
   double position1 = 0;                      // (0.0~1.0)
   CANcoder encoder1 = new CANcoder(9);       // CANCoder(9)
-  StatusSignal<Double> positionSignal1 = encoder1.getPosition();
+  StatusSignal<Double> positionSignal1 = encoder1.getAbsolutePosition();
   private com.revrobotics.CANSparkMax turnMotor1;  // SPARK MAX for Module1
   private final PIDController m_pid1 = new PIDController(1.0, 0.0, 0.0);
   private com.revrobotics.CANSparkMax driveMotor1; // Module1用ドライブモーター
@@ -44,7 +45,7 @@ public class Robot extends TimedRobot {
   // ----------------------
   double position2 = 0;
   CANcoder encoder2 = new CANcoder(6);
-  StatusSignal<Double> positionSignal2 = encoder2.getPosition();
+  StatusSignal<Double> positionSignal2 = encoder2.getAbsolutePosition();
   private com.revrobotics.CANSparkMax turnMotor2;
   private final PIDController m_pid2 = new PIDController(1.0, 0.0, 0.0);
   private com.revrobotics.CANSparkMax driveMotor2; // Module1用ドライブモーター
@@ -54,7 +55,7 @@ public class Robot extends TimedRobot {
   // ----------------------
   double position3 = 0;
   CANcoder encoder3 = new CANcoder(3);
-  StatusSignal<Double> positionSignal3 = encoder3.getPosition();
+  StatusSignal<Double> positionSignal3 = encoder3.getAbsolutePosition();
   private com.revrobotics.CANSparkMax turnMotor3;
   private final PIDController m_pid3 = new PIDController(1.0, 0.0, 0.0);
   private com.revrobotics.CANSparkMax driveMotor3; // Module1用ドライブモーター
@@ -64,7 +65,7 @@ public class Robot extends TimedRobot {
   // ----------------------
   double position4 = 0;
   CANcoder encoder4 = new CANcoder(12);
-  StatusSignal<Double> positionSignal4 = encoder4.getPosition();
+  StatusSignal<Double> positionSignal4 = encoder4.getAbsolutePosition();
   private com.revrobotics.CANSparkMax turnMotor4;
   private final PIDController m_pid4 = new PIDController(1.0, 0.0, 0.0);
   private com.revrobotics.CANSparkMax driveMotor4; // Module1用ドライブモーター
@@ -103,9 +104,11 @@ public class Robot extends TimedRobot {
       magnetSensorConfigs.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
       //magnetSensorConfigs.MagnetOffset = 1.0; // スケーリング
 
+      config.MagnetSensor = magnetSensorConfigs;
+
       encoder1.getConfigurator().apply(config);
     }
-    position1 = encoder1.getPosition().getValue();
+    position1 = encoder1.getAbsolutePosition().getValue();
 
     turnMotor1 = new com.revrobotics.CANSparkMax(
       8, // ← 仮ID (後で変更可能)
@@ -115,7 +118,7 @@ public class Robot extends TimedRobot {
     driveMotor1 = initializeMotor(7); // ドライブ用
 
     m_pid1.setTolerance(0.01);
-    // m_pid1.enableContinuousInput(0.0, 1.0);
+    m_pid1.enableContinuousInput(0.0, 1.0);
 
 
     // ==================================================
@@ -131,9 +134,11 @@ public class Robot extends TimedRobot {
       magnetSensorConfigs.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
       //magnetSensorConfigs.MagnetOffset = 1.0; // スケーリング
 
+      config.MagnetSensor = magnetSensorConfigs;
+
       encoder2.getConfigurator().apply(config);
     }
-    position2 = encoder2.getPosition().getValue();
+    position2 = encoder2.getAbsolutePosition().getValue();
 
     turnMotor2 = new com.revrobotics.CANSparkMax(
       5, // ← 仮ID
@@ -143,7 +148,7 @@ public class Robot extends TimedRobot {
     driveMotor2 = initializeMotor(4); // ドライブ用
 
     m_pid2.setTolerance(0.01);
-    // m_pid2.enableContinuousInput(0.0, 1.0);
+    m_pid2.enableContinuousInput(0.0, 1.0);
 
 
     // ==================================================
@@ -158,10 +163,12 @@ public class Robot extends TimedRobot {
       magnetSensorConfigs.MagnetOffset = 45.0;
       magnetSensorConfigs.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
       //magnetSensorConfigs.MagnetOffset = 1.0; // スケーリング
+      
+      config.MagnetSensor = magnetSensorConfigs;
 
       encoder3.getConfigurator().apply(config);
     }
-    position3 = encoder3.getPosition().getValue();
+    position3 = encoder3.getAbsolutePosition().getValue()-0.184;
 
     turnMotor3 = new com.revrobotics.CANSparkMax(
       2, // 仮ID
@@ -171,6 +178,7 @@ public class Robot extends TimedRobot {
     driveMotor3 = initializeMotor(13); // ドライブ用
 
     m_pid3.setTolerance(0.01);
+    m_pid3.enableContinuousInput(0.0, 1.0);
 
 
     // ==================================================
@@ -186,9 +194,12 @@ public class Robot extends TimedRobot {
       magnetSensorConfigs.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
       //magnetSensorConfigs.MagnetOffset = 1.0; // スケーリング
 
+      config.MagnetSensor = magnetSensorConfigs;
+
       encoder4.getConfigurator().apply(config);
+      
     }
-    position4 = encoder4.getPosition().getValue();
+    position4 = encoder4.getAbsolutePosition().getValue()-0.235;
 
     turnMotor4 = new com.revrobotics.CANSparkMax(
       11, // 仮ID
@@ -198,6 +209,13 @@ public class Robot extends TimedRobot {
     driveMotor4 = initializeMotor(10); // ドライブ用
 
     m_pid4.setTolerance(0.01);
+    m_pid4.enableContinuousInput(0.0, 1.0);
+
+
+    // position1 -= 0.301;
+    // position2 += 0.051;
+    // position3 -= 0.184;
+    // position4 -= 0.235;
   }
 
 
@@ -258,31 +276,70 @@ public class Robot extends TimedRobot {
     // ----------------------------
     // ① Joystick の X軸を取得 + デッドゾーン
     // ----------------------------
-    double leftStickX = joystick.getRawAxis(4);
-    if (Math.abs(leftStickX) < deadzone) {
-      leftStickX = 0.0;
+    double X = joystick.getRawAxis(0);
+    if (Math.abs(X) < deadzone) {
+      X = 0.0;
     }
-    double driveSpeed = joystick.getRawAxis(1);
-    if (Math.abs(driveSpeed) < deadzone) {
-      driveSpeed = 0.0;
+    double Y = -joystick.getRawAxis(1);
+    if (Math.abs(Y) < deadzone) {
+      Y = 0.0;
     }
+    double Rotate = -joystick.getRawAxis(4);
+    if (Math.abs(Rotate) < deadzone) {
+      Rotate = 0.0;
+    }
+
+    // ----------------------------
+    // ③ targetPos(角度) は sqrt(x^2 + y^2) を 0～1 にクランプ
+    // ----------------------------
+    double rawAngle = Math.sqrt(X * X + Y * Y); // 0.0 ～ sqrt(2) くらい
+    //double targetPos = rawAngle;
+    double driveSpeed = rawAngle * 0.3;
 
     // ----------------------------
     // ② -1.0→0.0, +1.0→1.0 にマッピング
     // ----------------------------
-    double targetPos = (leftStickX + 1.0) / 2.0;
+    //targetPos = (X + 1.0) / 2.0;
+    //driveSpeed = (Y + 1.0) / 2.0;
+
+    //-----------------
+    //角度コントロール編
+    //-----------------
+    double angleRad = Math.atan2(Y,X);
+    double angleDeg = Math.toDegrees(angleRad);
+
+    double desiredAngleDeg = angleDeg;
+
+    if (desiredAngleDeg < 0) {
+      desiredAngleDeg += 360.0;
+    }else if (desiredAngleDeg >= 360.0){
+      desiredAngleDeg -= 360.0;
+    }
+
+    double targetPos = desiredAngleDeg / 360.0;
+
 
 
     // ==================================================
     // Module1: (複製のまま)
     // ==================================================
-    position1 = positionSignal1.getValue() - 0.1;
     positionSignal1.refresh();
+    position1 = positionSignal1.getValue() -0.301;
+
+    
+    
 
     double output1 = m_pid1.calculate(position1, targetPos);
     output1 = clamp(output1, -1.0, 1.0);
     turnMotor1.set(output1);
-    driveMotor1.set(driveSpeed); // ドライブモーターに速度を適用
+    driveMotor1.set(-driveSpeed); // ドライブモーターに速度を適用
+
+    double Rotation1 = m_pid1.calculate(position1, 0.25);
+    output1 = clamp(output1, -1.0, 1.0);
+    turnMotor1.set(output1);
+    driveMotor1.set(-driveSpeed); // ドライブモーターに速度を適用
+
+    
     
 
     SmartDashboard.putNumber("TargetPos1", targetPos);
@@ -292,12 +349,17 @@ public class Robot extends TimedRobot {
     // ==================================================
     // Module2
     // ==================================================
-    position2 = positionSignal2.getValue() + 0.3;
     positionSignal2.refresh();
+    position2 = positionSignal2.getValue() +0.051;
+
+    
+
+    
 
     double output2 = m_pid2.calculate(position2, targetPos);
     output2 = clamp(output2, -1.0, 1.0);
     turnMotor2.set(output2);
+    driveMotor2.set(driveSpeed); 
 
     SmartDashboard.putNumber("TargetPos2", targetPos);
     SmartDashboard.putNumber("PID Output2", output2);
@@ -306,12 +368,16 @@ public class Robot extends TimedRobot {
     // ==================================================
     // Module3
     // ==================================================
-    position3 = positionSignal3.getValue() + 0.1;
     positionSignal3.refresh();
+    position3 = positionSignal3.getValue() -0.181;
+
+    
+   
 
     double output3 = m_pid3.calculate(position3, targetPos);
     output3 = clamp(output3, -1.0, 1.0);
     turnMotor3.set(output3);
+    driveMotor3.set(driveSpeed); 
 
     SmartDashboard.putNumber("TargetPos3", targetPos);
     SmartDashboard.putNumber("PID Output3", output3);
@@ -320,12 +386,16 @@ public class Robot extends TimedRobot {
     // ==================================================
     // Module4
     // ==================================================
-    position4 = positionSignal4.getValue();
     positionSignal4.refresh();
+    position4 = positionSignal4.getValue() -0.235;
 
-    double output4 = m_pid4.calculate(position4, targetPos);
+    
+    
+
+    double output4 = m_pid4.calculate(position4, targetPos) + Rotate;
     output4 = clamp(output4, -1.0, 1.0);
     turnMotor4.set(output4);
+    driveMotor4.set(-driveSpeed); 
 
     SmartDashboard.putNumber("TargetPos4", targetPos);
     SmartDashboard.putNumber("PID Output4", output4);
