@@ -15,6 +15,7 @@ import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.signals.AbsoluteSensorRangeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 
+import edu.wpi.first.hal.simulation.RoboRioDataJNI;
 import edu.wpi.first.math.controller.PIDController;
 
 public class Robot extends TimedRobot {
@@ -28,6 +29,7 @@ public class Robot extends TimedRobot {
   // 共通: Joystick
   // ----------------------
   Joystick joystick = new Joystick(0);
+
 
 
   // ----------------------
@@ -273,6 +275,12 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
 
+
+    //robot size
+    double  RobotWith = 6.75;
+    double  RobotLength = 6.75;
+    double  R =  Math.sqrt( RobotLength*RobotLength + RobotWith * RobotWith);
+
     // ----------------------------
     // ① Joystick の X軸を取得 + デッドゾーン
     // ----------------------------
@@ -287,62 +295,103 @@ public class Robot extends TimedRobot {
     double Rotate = -joystick.getRawAxis(4);
     if (Math.abs(Rotate) < deadzone) {
       Rotate = 0.0;
-    }
+    
+
+    //べくとるせってい
+    double A = X - Rotate * (RobotWith / R);
+    double B = X + Rotate * (RobotWith / R);
+    double C = Y - Rotate * (RobotLength / R);
+    double D = Y + Rotate * (RobotLength / R);
+
+    //module1
+    double FRspeed = Math.sqrt(B*B + C*C);
+    double FRrad = Math.toDegrees(Math.atan2(B,C));
+    //module2
+    double BLspeed = Math.sqrt(A*A+ D*D);
+    double BLrad = Math.toDegrees(Math.atan2(A,D));
+    //module3
+    double BRspeed = Math.sqrt(A*A + C*C);
+    double BRrad = Math.toDegrees(Math.atan2(A,C));
+    //module4
+    double FLspeed = Math.sqrt(B*B + D*D);
+    double FLrad = Math.toDegrees(Math.atan2(B,D));
 
     // ----------------------------
     // ③ targetPos(角度) は sqrt(x^2 + y^2) を 0～1 にクランプ
     // ----------------------------
-    double rawAngle = Math.sqrt(X * X + Y * Y); // 0.0 ～ sqrt(2) くらい
-    //double targetPos = rawAngle;
-    double driveSpeed = rawAngle * 0.3;
+    // double rawAngle = Math.sqrt(X * X + Y * Y); // 0.0 ～ sqrt(2) くらい
+    // //double targetPos = rawAngle;
+    // double driveSpeed = rawAngle * 0.3;
+    // 速度を 0〜1 に正規化
 
-    // ----------------------------
-    // ② -1.0→0.0, +1.0→1.0 にマッピング
-    // ----------------------------
-    //targetPos = (X + 1.0) / 2.0;
-    //driveSpeed = (Y + 1.0) / 2.0;
+    double maxSpeed = Math.max(
+      Math.max(FLspeed, FRspeed),
+      Math.max(BLspeed, BRspeed)
+    );
+    if (maxSpeed > 1.0) {
+      FLspeed /= maxSpeed;
+      FRspeed /= maxSpeed;
+      BLspeed /= maxSpeed;
+      BRspeed /= maxSpeed;
+    }
+
 
     //-----------------
     //角度コントロール編
     //-----------------
-    double angleRad = Math.atan2(Y,X);
-    double angleDeg = Math.toDegrees(angleRad);
+    // double angleRad = Math.atan2(Y,X);
+    // double angleDeg = Math.toDegrees(angleRad);
 
-    double desiredAngleDeg = angleDeg;
+    //角度の正規化
+    double desiredAngleDeg1 = FRspeed;
+    double desiredAngleDeg2 = BLspeed;
+    double desiredAngleDeg3 = BRspeed;
+    double desiredAngleDeg4 = FLspeed;
 
-    if (desiredAngleDeg < 0) {
-      desiredAngleDeg += 360.0;
-    }else if (desiredAngleDeg >= 360.0){
-      desiredAngleDeg -= 360.0;
+    if (desiredAngleDeg1 < 0) {
+      desiredAngleDeg1 += 360.0;
+    }else if (desiredAngleDeg1 >= 360.0){
+      desiredAngleDeg1 -= 360.0;
     }
 
-    double targetPos = desiredAngleDeg / 360.0;
+        if (desiredAngleDeg2 < 0) {
+      desiredAngleDeg2 += 360.0;
+    }else if (desiredAngleDeg2 >= 360.0){
+      desiredAngleDeg2 -= 360.0;
+    }
 
+        if (desiredAngleDeg3 < 0) {
+      desiredAngleDeg3 += 360.0;
+    }else if (desiredAngleDeg3 >= 360.0){
+      desiredAngleDeg3 -= 360.0;
+    }
 
+        if (desiredAngleDeg4 < 0) {
+      desiredAngleDeg4 += 360.0;
+    }else if (desiredAngleDeg4 >= 360.0){
+      desiredAngleDeg4 -= 360.0;
+    }
+
+    double targetPos1 = desiredAngleDeg1 / 360.0;
+    double targetPos2 = desiredAngleDeg2 / 360.0;
+    double targetPos3 = desiredAngleDeg3 / 360.0;
+    double targetPos4 = desiredAngleDeg4 / 360.0;
+    //おわり
 
     // ==================================================
     // Module1: (複製のまま)
     // ==================================================
     positionSignal1.refresh();
     position1 = positionSignal1.getValue() -0.301;
-
-    
     
 
-    double output1 = m_pid1.calculate(position1, targetPos);
-    output1 = clamp(output1, -1.0, 1.0);
+    double output1 = m_pid1.calculate(position1, targetPos1);
+    //output1 = clamp(output1, -1.0, 1.0);
     turnMotor1.set(output1);
-    driveMotor1.set(-driveSpeed); // ドライブモーターに速度を適用
+    driveMotor1.set(FRspeed); // ドライブモーターに速度を適
+ 
 
-    double Rotation1 = m_pid1.calculate(position1, 0.25);
-    output1 = clamp(output1, -1.0, 1.0);
-    turnMotor1.set(output1);
-    driveMotor1.set(-driveSpeed); // ドライブモーターに速度を適用
-
-    
-    
-
-    SmartDashboard.putNumber("TargetPos1", targetPos);
+    SmartDashboard.putNumber("TargetPos1", targetPos1);
     SmartDashboard.putNumber("PID Output1", output1);
 
 
@@ -356,12 +405,12 @@ public class Robot extends TimedRobot {
 
     
 
-    double output2 = m_pid2.calculate(position2, targetPos);
-    output2 = clamp(output2, -1.0, 1.0);
+    double output2 = m_pid2.calculate(position2, targetPos2);
+    //output2 = clamp(output2, -1.0, 1.0);
     turnMotor2.set(output2);
-    driveMotor2.set(driveSpeed); 
+    driveMotor2.set(BLspeed); 
 
-    SmartDashboard.putNumber("TargetPos2", targetPos);
+    SmartDashboard.putNumber("TargetPos2", targetPos2);
     SmartDashboard.putNumber("PID Output2", output2);
 
 
@@ -374,12 +423,12 @@ public class Robot extends TimedRobot {
     
    
 
-    double output3 = m_pid3.calculate(position3, targetPos);
-    output3 = clamp(output3, -1.0, 1.0);
+    double output3 = m_pid3.calculate(position3, targetPos3);
+    //output3 = clamp(output3, -1.0, 1.0);
     turnMotor3.set(output3);
-    driveMotor3.set(driveSpeed); 
+    driveMotor3.set(BRspeed); 
 
-    SmartDashboard.putNumber("TargetPos3", targetPos);
+    SmartDashboard.putNumber("TargetPos3", targetPos3);
     SmartDashboard.putNumber("PID Output3", output3);
 
 
@@ -392,12 +441,12 @@ public class Robot extends TimedRobot {
     
     
 
-    double output4 = m_pid4.calculate(position4, targetPos) + Rotate;
-    output4 = clamp(output4, -1.0, 1.0);
+    double output4 = m_pid4.calculate(position4, targetPos4) + Rotate;
+    //output4 = clamp(output4, -1.0, 1.0);
     turnMotor4.set(output4);
-    driveMotor4.set(-driveSpeed); 
+    driveMotor4.set(FLspeed); 
 
-    SmartDashboard.putNumber("TargetPos4", targetPos);
+    SmartDashboard.putNumber("TargetPos4", targetPos4);
     SmartDashboard.putNumber("PID Output4", output4);
   }
 
@@ -405,9 +454,9 @@ public class Robot extends TimedRobot {
   // =====================================================
   // clamp メソッド (そのまま複製)
   // =====================================================
-  private double clamp(double val, double min, double max) {
-    return Math.max(min, Math.min(val, max));
-  }
+  // private double clamp(double val, double min, double max) {
+  //   return Math.max(min, Math.min(val, max));
+  // }
 
 
   // === 以下、他のモードは既存のまま ===
@@ -428,6 +477,7 @@ public class Robot extends TimedRobot {
   public void simulationInit() {}
   @Override
   public void simulationPeriodic() {}
+}
 }
 
 // わっしょいはなび 関数作りたい
