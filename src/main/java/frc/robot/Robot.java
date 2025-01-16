@@ -476,8 +476,9 @@ public class Robot extends TimedRobot {
   @Override
   public void simulationInit() {}
   @Override
-  public void simulationPeriodic() {}
+  public void simulationPeriodic() {
+  }
 }
-}
+
 
 // わっしょいはなび 関数作りたい
