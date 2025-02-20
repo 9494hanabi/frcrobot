@@ -46,7 +46,11 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.fasterxml.jackson.databind.annotation.EnumNaming;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
+import org.photonvision.Photoncamera;
+import org.photonvision.targeting.PhotonPipelineResult;
+import org.photonvision.targeting.PhotonTrackedTarget;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.motorcontrol.PWMSparkMax;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -67,6 +71,9 @@ public class Robot extends TimedRobot {
     private Joystick joystick;
     private Servo myServo;
     private TalonFX krakenMotor;
+    private PhotonCamera camera;
+    private DifferentialDrive drive;
+
     
     TalonSRX talonSRX = new TalonSRX(1);
     TalonSRX rightArmMotor = new TalonSRX(2);
@@ -132,6 +139,7 @@ public class Robot extends TimedRobot {
     /** This function is called periodically during autonomous. */
     @Override
     public void autonomousPeriodic() {
+        autoTracking();
     }
     @Override
     public void teleopInit() {
@@ -261,4 +269,17 @@ public class Robot extends TimedRobot {
         void onDataReceived(double distance, double roll, double pitch, double yaw);
     }
 
+    private void autoTracking() {
+        PhotonPipelineResult result = camera.getLatesResult();
+        if (result.hasTargets()) {
+            PhotonTrackedTarget target = result.getBestTarget();
+            double yawError = target.getYaw();
+            double rotationSpeed = kP * yawError;
+            double forwardSpeed = 0.3;
+            drive.arcadeDrive(forwardSpeed, rotationSpeed);
+        };
+        else {
+            drive.arcadeDrive(0, 0.2)
+        }
+    }
 }
