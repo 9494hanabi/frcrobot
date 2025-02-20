@@ -46,10 +46,10 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.fasterxml.jackson.databind.annotation.EnumNaming;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
-import org.photonvision.Photoncamera;
+import org.photonvision.PhotonCamera;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
-import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.TmedRobot;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.motorcontrol.PWMSparkMax;
@@ -115,6 +115,8 @@ public class Robot extends TimedRobot {
         // guiInstance = new AprilTagClientGUI();
         lastError = 0;
         lastTimeStamp = 0;
+        java camera = new PhotonCamera("photonvision");
+        drive = new DifferentialDrive(leftMotor1, rightMotor1)
         
         krakenMotor = new TalonFX(11);
         TalonFXConfiguration config = new TalonFXConfiguration();
@@ -270,14 +272,14 @@ public class Robot extends TimedRobot {
     }
 
     private void autoTracking() {
-        PhotonPipelineResult result = camera.getLatesResult();
+        PhotonPipelineResult result = camera.getLatestResult();
         if (result.hasTargets()) {
             PhotonTrackedTarget target = result.getBestTarget();
             double yawError = target.getYaw();
-            double rotationSpeed = kP * yawError;
+            double rotationSpeed = kP * yawError
             double forwardSpeed = 0.3;
             drive.arcadeDrive(forwardSpeed, rotationSpeed);
-        };
+        }
         else {
             drive.arcadeDrive(0, 0.2)
         }
