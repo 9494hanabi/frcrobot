@@ -38,12 +38,13 @@
 // }
 
 
-
+// This is the latest version 2/10/2025
 
 package frc.robot;
 import edu.wpi.first.wpilibj.Timer;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import com.fasterxml.jackson.databind.annotation.EnumNaming;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Joystick;
@@ -52,12 +53,21 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.cameraserver.CameraServer;
+// import com.ctre.phoenix.motorcontrol.can.TalonFX;
+import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.DutyCycleOut;
+
+
+import com.ctre.phoenix.motorcontrol.ControlMode;
 // import april.AprilTagClientGUI;
 public class Robot extends TimedRobot {
     private PWMSparkMax leftMotor1, leftMotor2, rightMotor1, rightMotor2;
     private PWMSparkMax rightNeoMotor, leftNeoMotor;
     private Joystick joystick;
     private Servo myServo;
+    private TalonFX krakenMotor;
+    
     TalonSRX talonSRX = new TalonSRX(1);
     TalonSRX rightArmMotor = new TalonSRX(2);
     TalonSRX leftArmMotor = new TalonSRX(3);
@@ -98,10 +108,16 @@ public class Robot extends TimedRobot {
         // guiInstance = new AprilTagClientGUI();
         lastError = 0;
         lastTimeStamp = 0;
+        
+        krakenMotor = new TalonFX(11);
+        TalonFXConfiguration config = new TalonFXConfiguration();
+
         m_chooser.setDefaultOption("Left Auto", kLeftAuto);
         m_chooser.addOption("Right Auto", kRightAuto);
         SmartDashboard.putData("Auto choices", m_chooser);
         SmartDashboard.putNumber("Shoot speed", shootSpeed);
+
+        krakenMotor.getConfigurator().apply(config);
     }
     /** This function is run once each time the robot enters autonomous mode. */
     @Override
@@ -134,7 +150,7 @@ public class Robot extends TimedRobot {
     double lastTimeStamp = 0; // 前回のタイムスタンプ
     @Override
     public void teleopPeriodic() {
-        // boolean key1 = joystick.getRawButton(1);
+        boolean key1 = joystick.getRawButton(1);
         boolean key2 = joystick.getRawButton(2);
         // boolean key3 = joystick.getRawButton(3);
         // boolean key4 = joystick.getRawButton(4);
@@ -185,10 +201,10 @@ public class Robot extends TimedRobot {
         double right = -1 * joystick.getRawAxis(5); // ジョイスティックのY軸
         double rightSpeed = right;
         double leftSpeed = left;
-        leftMotor1.set(limitSpeed(rightSpeed));
-        leftMotor2.set(limitSpeed(rightSpeed));
-        rightMotor1.set(limitSpeed(leftSpeed));
-        rightMotor2.set(limitSpeed(leftSpeed));
+        // leftMotor1.set(limitSpeed(rightSpeed));
+        // leftMotor2.set(limitSpeed(rightSpeed));
+        // rightMotor1.set(limitSpeed(leftSpeed));
+        // rightMotor2.set(limitSpeed(leftSpeed));
         // teleopPeriodic内や任意の周期的に呼び出されるメソッド内
         double sensorPosition = talonSRX.getSelectedSensorPosition() * kDriveTick2Feet; // 現在位置の読み取り
         double error = setpoint - sensorPosition; // 偏差の計算
@@ -222,9 +238,18 @@ public class Robot extends TimedRobot {
         // 前回の値の更新
         lastError = error;
         lastTimeStamp = currentTime;
+
+        
+       if (key1) {
+         krakenMotor.setControl(new DutyCycleOut(0.5));
+       }else{
+         krakenMotor.setControl(new DutyCycleOut(0));
+       }
+       
+
     }
     private double limitSpeed(double speed) {
-        return Math.max(-0.2, Math.min(0.2, speed));
+        return Math.max(-0.5, Math.min(0.5, speed));
     }
     /** This function is called once each time the robot enters test mode. */
     @Override
@@ -235,4 +260,5 @@ public class Robot extends TimedRobot {
     public interface TagDataListener {
         void onDataReceived(double distance, double roll, double pitch, double yaw);
     }
+
 }
