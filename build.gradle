@@ -105,3 +105,22 @@ wpi.java.configureTestTasks(test)
 tasks.withType(JavaCompile) {
     options.compilerArgs.add '-XDstringConcat=inline'
 }
+
+plugins {
+    // 例：GradleRIOプラグインを利用している場合
+    id 'edu.wpi.first.GradleRIO' version '2025.2.0'
+}
+
+repositories {
+    mavenCentral()
+    // PhotonVisionのライブラリを取得するためのリポジトリ
+    maven {
+        url 'https://photonvision.org/maven'
+    }
+}
+
+dependencies {
+    // PhotonVision APIの依存関係（例として2021.1.0を使用。最新のものに更新すること）
+    implementation 'org.photonvision:photonvision-api:2021.1.0'
+    // 他の依存関係（WPILibなど）はプロジェクトに合わせて記述
+}
