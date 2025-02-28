@@ -31,9 +31,6 @@ import com.pathplanner.lib.trajectory.PathPlannerTrajectory;
 import com.pathplanner.lib.trajectory.PathPlannerTrajectoryState;  
 import com.pathplanner.lib.trajectory.SwerveModuleTrajectoryState;
 
-
-
-
 import com.studica.frc.AHRS;
 
 import edu.wpi.first.wpilibj.SPI.Port;
@@ -60,6 +57,16 @@ public class Swerve extends SubsystemBase {
 // };
 
   private SwerveDriveOdometry odometry;
+
+  private SwerveModulePosition[] getModulePositions() {
+    SwerveModulePosition[] positions = new SwerveModulePosition[modules.length];
+    for (int i = 0; i < modules.length; i++) {
+      positions[i] = modules[i].getPosition(); 
+    }
+    return positions;
+  }
+
+
 
   private Joystick joystick;
                                                      
@@ -174,7 +181,7 @@ public Pose2d getPose() {
 // resetOdometry は返り値なし（void）にする
 public void resetOdometry(Pose2d pose) {
   // 例：odometry をリセットする処理
-  odometry.resetPosition(navx.getRotation2d(), new SwerveModulePosition[modules.length], pose);
+  odometry.resetPosition(navx.getRotation2d(), getModulePositions(), pose);
 }
 
 // 正しい型でロボット相対速度を返す

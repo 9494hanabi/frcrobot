@@ -11,6 +11,7 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
 // import com.kauailabs.navx.frc.AHRS;
@@ -117,6 +118,13 @@ class Module {
     steerPID = new PIDController(48, 0, 0.1);
     // +180度と-180度は同じだからPIDでそうセットする
     steerPID.enableContinuousInput(-.5, .5);
+  
+  }
+
+  public SwerveModulePosition getPosition() {
+    double distance = driveEncoder.getPosition();
+    Rotation2d angle = new Rotation2d(steerEncoder.getAbsolutePosition().getValueAsDouble());
+    return new SwerveModulePosition(distance, angle);
   }
 
   void run(SwerveModuleState desiredState) {
@@ -146,6 +154,6 @@ class Module {
 
   public Rotation2d getAngle() {
     return Rotation2d.fromRotations(steerEncoder.getAbsolutePosition().getValueAsDouble());
-}
+  }
 
 }
