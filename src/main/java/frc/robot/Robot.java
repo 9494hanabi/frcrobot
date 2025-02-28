@@ -54,7 +54,7 @@ public class Robot extends TimedRobot {
    * code.
    */
   public Robot() {
-    chooser.setDefaultOption("Default Auto", none());
+    //chooser.setDefaultOption("Default Auto", none());
     SmartDashboard.putData("Auto choices", chooser);
 
     //Swerve swerve = new Swerve(0);
@@ -107,8 +107,8 @@ public class Robot extends TimedRobot {
   // public void autonomousExit() {
   //   autoCommand.cancel();
   // }
-  @Override
-  public void autonomousPeriodic() {
-    CommandScheduler.getInstance().run(); // コマンドを更新
-  }
+  // @Override
+  // public void autonomousPeriodic() {
+  //   //CommandScheduler.getInstance().run(); // コマンドを更新
+  // }
 }

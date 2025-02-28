@@ -14,6 +14,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
 // import com.kauailabs.navx.frc.AHRS;
+import edu.wpi.first.units.measure.Distance;
 
 class Module {
     private final SparkMax driveMotor;
@@ -24,6 +25,7 @@ class Module {
     private final SimpleMotorFeedforward driveFeedforward;
     private final PIDController drivePID;
     private final PIDController steerPID;
+    public Distance getDistanceMeters;
   
 
   // モジュールのギア比
@@ -138,4 +140,12 @@ class Module {
             currentSteerAngleRotations, // 今のポジション
             desiredState.angle.getRotations())); // ターゲットのポジション
   }
+  public double getDistanceMeters() {
+    return driveEncoder.getPosition();
+  }
+
+  public Rotation2d getAngle() {
+    return Rotation2d.fromRotations(steerEncoder.getAbsolutePosition().getValueAsDouble());
+}
+
 }

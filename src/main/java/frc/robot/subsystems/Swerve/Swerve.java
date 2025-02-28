@@ -44,27 +44,28 @@ import edu.wpi.first.wpilibj.SerialPort;
 //import com.fasterxml.jackson.databind.util.ArrayBuilders.DoubleBuilder;
 
 public class Swerve extends SubsystemBase {
-  private final Module[] modules;
-
-  private SwerveDriveKinematics kinematics;
-  //NavX
-  private final AHRS navx = new AHRS(AHRS.NavXComType.kMXP_SPI);
-    // 各モジュールの現在の位置を取得する（例として初期状態ならすべてゼロとする）
-SwerveModulePosition[] modulePositions = new SwerveModulePosition[] {
-  new SwerveModulePosition(0.0, new Rotation2d(0)),
-  new SwerveModulePosition(0.0, new Rotation2d(0)),
-  new SwerveModulePosition(0.0, new Rotation2d(0)),
-  new SwerveModulePosition(0.0, new Rotation2d(0))
-};
+  //public static final Object[] Module;
+  
+    private Module[] modules;
+  
+    private SwerveDriveKinematics kinematics;
+    //NavX
+    private final AHRS navx = new AHRS(AHRS.NavXComType.kMXP_SPI);
+      // 各モジュールの現在の位置を取得する（例として初期状態ならすべてゼロとする）
+//   SwerveModulePosition[] modulePositions = new SwerveModulePosition[] {
+//   new SwerveModulePosition(modules[0].getDistanceMeters(), modules[0].getAngle()),
+//   new SwerveModulePosition(modules[1].getDistanceMeters(), modules[1].getAngle()),
+//   new SwerveModulePosition(modules[2].getDistanceMeters(), modules[2].getAngle()),
+//   new SwerveModulePosition(modules[3].getDistanceMeters(), modules[3].getAngle())
+// };
 
   private SwerveDriveOdometry odometry;
 
   private Joystick joystick;
                                                      
   // ホイールからホイールの幅、メートル
-  private final double trackWidthMeters = 6.75;
-  private final double trackLengthMeters = 6.75;
-  
+  private final double trackWidthMeters = 0.675;
+  private final double trackLengthMeters = 0.675;
 
   // ドライブベースの最大速度。秒速メートルと秒速ラジアン
   private final double maxLinearVelocityMetersPerSec = Module.wheelMaxLinearVelocity;
@@ -84,6 +85,14 @@ SwerveModulePosition[] modulePositions = new SwerveModulePosition[] {
         new Translation2d(-trackWidthMeters / 2, trackLengthMeters / 2),
         new Translation2d(-trackWidthMeters / 2, -trackLengthMeters / 2));
 
+
+        SwerveModulePosition[] modulePositions = new SwerveModulePosition[] {
+          new SwerveModulePosition(modules[0].getDistanceMeters(), modules[0].getAngle()),
+          new SwerveModulePosition(modules[1].getDistanceMeters(), modules[1].getAngle()),
+          new SwerveModulePosition(modules[2].getDistanceMeters(), modules[2].getAngle()),
+          new SwerveModulePosition(modules[3].getDistanceMeters(), modules[3].getAngle())
+        };
+        
         odometry = new SwerveDriveOdometry(kinematics, navx.getRotation2d(), modulePositions, new Pose2d(0, 0, new Rotation2d(0)));
 }
 
