@@ -101,6 +101,15 @@ public class Swerve extends SubsystemBase {
         };
         
         odometry = new SwerveDriveOdometry(kinematics, navx.getRotation2d(), modulePositions, new Pose2d(0, 0, new Rotation2d(0)));
+
+    
+    // RobotConfig config;
+    // try {
+    //     config = RobotConfig.fromGUISettings(); // GUIから設定を取得
+    // } catch (Exception e) {
+    //     e.printStackTrace();
+    //     config = new RobotConfig(0, 0, null, 0); // エラー時のデフォルト設定
+    // }
 }
 
 
@@ -138,6 +147,7 @@ public class Swerve extends SubsystemBase {
       // System.out.println("ChasisSpeed:Rad " + Rad);
       //System.out.println("ChasisSpeed:Rotation " + robotRotation);
     });
+
   }
 
   public void drive(ChassisSpeeds desiredSpeeds, DriveFeedforwards feedforwards) {
@@ -156,6 +166,14 @@ public class Swerve extends SubsystemBase {
     for (int i = 0; i < 4; i++) {
       modules[i].run(targetModuleSpeeds[i]);
     }
+
+    odometry.update(navx.getRotation2d(), 
+    new SwerveModulePosition[]{
+        modules[0].getPosition(),
+        modules[1].getPosition(),
+        modules[2].getPosition(),
+        modules[3].getPosition()
+    });
   }
 
   public Command Drive() {
@@ -189,24 +207,43 @@ public ChassisSpeeds getChassisSpeeds() {
   return new ChassisSpeeds(0.0, 0.0, 0.0);
 }
 
-ModuleConfig moduleConfig = new ModuleConfig(0.9, 1.0, 0.9,DCMotor.getNEO(1), 6.75,1.0, 1);
+ModuleConfig moduleConfig = new ModuleConfig(0.09, 4.0, 0.9,DCMotor.getNEO(1), 6.75,40.0, 1);
 //moduleConfig.wheelCOF = 1.0;
 
+
+
 public void configureAutoBuilder() {
+  RobotConfig config;
+  try {
+      config = RobotConfig.fromGUISettings(); // GUIから設定を取得
+  } catch (Exception e) {
+      e.printStackTrace();
+      config = new RobotConfig(
+          23,  // ロボットの質量（kg）
+          3.5,   // 慣性モーメント（kg*m^2）
+          new ModuleConfig(0.0508, 4.5, 1.0, DCMotor.getNEO(1), 6.75, 40.0, 1),
+          new Translation2d(trackWidthMeters / 2, trackLengthMeters / 2),
+          new Translation2d(trackWidthMeters / 2, -trackLengthMeters / 2),
+          new Translation2d(-trackWidthMeters / 2, trackLengthMeters / 2),
+          new Translation2d(-trackWidthMeters / 2, -trackLengthMeters / 2)
+      );
+  }
+
   AutoBuilder.configure(
-    this::getPose,  // ロボットの現在位置を取得
-    this::resetOdometry, // オドメトリをリセット
-    this::getChassisSpeeds, // 現在のシャーシ速度を取得
-    this::drive, // ロボットを動かす関数
-    new PPHolonomicDriveController(
-        new PIDConstants(1.0, 0.0, 0.0), // X軸のPID
-        new PIDConstants(1.0, 0.0, 0.0), // Y軸のPID
-        0.1 // 回転の制約
-    ),
-    new RobotConfig(74.088, 6.883, moduleConfig, maxAngularVelocityRadiansPerSec),
-    () -> false,
-    this
-);
-System.out.println("AutoBuilder configured!"); // 確認用
+      this::getPose,
+      this::resetOdometry,
+      this::getChassisSpeeds,
+      this::drive,
+      new PPHolonomicDriveController(
+          new PIDConstants(5.0, 0.0, 0.0), // X軸のPID
+          new PIDConstants(5.0, 0.0, 0.0)  // 回転のPID
+      ),
+      config, // 修正した `RobotConfig`
+      () -> false,
+      this
+  );
+
+  System.out.println("✅ AutoBuilder configured!");
 }
+
 }
