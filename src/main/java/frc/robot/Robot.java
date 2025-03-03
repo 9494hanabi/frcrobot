@@ -75,7 +75,19 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit() {
     // Robot の初期化時に AutoBuilder の設定を呼び出す
-    swerve.configureAutoBuilder();
+    swerve.configureAutoBuilder();// コマンドが終了したらログを出力する
+
+    //デバッグ
+    // コマンドが終了するたびにデバッグ情報を出す
+    CommandScheduler.getInstance().onCommandFinish(command -> {
+      System.out.println("✅ コマンド終了: " + command.getName());
+
+      // もし実行中のコマンドが何もなければメッセージを出力
+      if (!CommandScheduler.getInstance().isScheduled(command)) {
+        System.out.println("🎉 全てのコマンドが完了しました！ 🎉");
+      }
+    });
+  
   }
 
 
@@ -86,6 +98,8 @@ public class Robot extends TimedRobot {
     // subsystem periodic() methods. This must be called from the robot's periodic block in order
     // for anything in the Command-based framework to work.
     CommandScheduler.getInstance().run();
+
+    
   }
 
   private Command autoCommand;
@@ -99,6 +113,14 @@ public class Robot extends TimedRobot {
     }
     if (autoCommand != null) {
         autoCommand.schedule(); // コマンドをスケジュール
+        
+    }
+
+    if (autoCommand == null) {
+      System.out.println("🚀 オートコマンドをスケジュール: " + autoCommand.getName());
+      autoCommand = AutoBuilder.buildAuto("FRC2025"); // PathPlannerのオートをロード
+    } else {
+      System.out.println("⚠ WARNING: オートコマンドが選択されていません！");
     }
 
   }
