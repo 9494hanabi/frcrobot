@@ -47,7 +47,7 @@ public class Swerve extends SubsystemBase {
   
     private SwerveDriveKinematics kinematics;
     //NavX
-    private final AHRS navx = new AHRS(AHRS.NavXComType.kMXP_SPI);
+    private AHRS navx = new AHRS(AHRS.NavXComType.kMXP_SPI);
       // 各モジュールの現在の位置を取得する（例として初期状態ならすべてゼロとする）
 //   SwerveModulePosition[] modulePositions = new SwerveModulePosition[] {
 //   new SwerveModulePosition(modules[0].getDistanceMeters(), modules[0].getAngle()),
@@ -71,8 +71,8 @@ public class Swerve extends SubsystemBase {
   private Joystick joystick;
                                                      
   // ホイールからホイールの幅、メートル
-  private final double trackWidthMeters = 0.675;
-  private final double trackLengthMeters = 0.675;
+  private final double trackWidthMeters = 0.475;
+  private final double trackLengthMeters = 0.475;
 
   // ドライブベースの最大速度。秒速メートルと秒速ラジアン
   private final double maxLinearVelocityMetersPerSec = Module.wheelMaxLinearVelocity;
@@ -80,6 +80,19 @@ public class Swerve extends SubsystemBase {
       Module.wheelMaxLinearVelocity / Math.hypot(trackLengthMeters / 2, trackWidthMeters / 2);
 
       
+  /** NavX から現在のロボットの角度を取得（ラジアン） */
+  public Rotation2d getHeading() {
+    return navx.getRotation2d(); 
+  }
+
+  public double getyaw() {
+    return navx.getYaw();
+  }
+
+  public boolean IsConnected() {
+    return navx.isConnected(); 
+  }
+
   public Swerve(int joystickPort) {
     modules = new Module[] {new Module(0), new Module(1), new Module(2), new Module(3)};
     joystick = new Joystick(joystickPort);
@@ -108,7 +121,7 @@ public class Swerve extends SubsystemBase {
     //     config = RobotConfig.fromGUISettings(); // GUIから設定を取得
     // } catch (Exception e) {
     //     e.printStackTrace();
-    //     config = new RobotConfig(0, 0, null, 0); // エラー時のデフォルト設定
+    //     config = new RobotConfig(0, 0, null, 0); // エラー時のデフォルト設定。
     // }
 }
 
@@ -128,7 +141,6 @@ public class Swerve extends SubsystemBase {
       // 現在のロボットの向きを取得
       
 
-
       double X = Xspeed.getAsDouble() * maxLinearVelocityMetersPerSec; // 前後 (Y軸)
       double Y = Yspeed.getAsDouble() * maxLinearVelocityMetersPerSec; // 左右 (X軸)
       double Rad = Yawspeed.getAsDouble() * maxAngularVelocityRadiansPerSec; // 回転 (Z軸)
@@ -140,7 +152,14 @@ public class Swerve extends SubsystemBase {
             if (Math.abs(Y) < 0.01) Y = 0;
             if (Math.abs(Rad) < 0.01) Rad = 0;
 
-      drive(new ChassisSpeeds(X,Y,Rad), null);
+      // NavX からロボットの向きを取得
+        Rotation2d robotRotation = getHeading().unaryMinus();
+
+        // フィールド相対の ChassisSpeeds を計算
+        ChassisSpeeds fieldRelativeSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(X, Y, Rad, robotRotation);
+
+        // 計算した速度で駆動
+        drive(fieldRelativeSpeeds, null);
 
       // System.out.println("ChasisSpeed:X " + X);
       // System.out.println("ChasisSpeed:Y " + Y);
@@ -152,10 +171,10 @@ public class Swerve extends SubsystemBase {
 
   public void drive(ChassisSpeeds desiredSpeeds, DriveFeedforwards feedforwards) {
 
-    System.out.println("PathPlanner is driving! Speeds: " 
-        + desiredSpeeds.vxMetersPerSecond + ", " 
-        + desiredSpeeds.vyMetersPerSecond + ", " 
-        + desiredSpeeds.omegaRadiansPerSecond);
+    // System.out.println("PathPlanner is driving! Speeds: " 
+    //     + desiredSpeeds.vxMetersPerSecond + ", " 
+    //     + desiredSpeeds.vyMetersPerSecond + ", " 
+    //     + desiredSpeeds.omegaRadiansPerSecond);
 
     // ターゲットの速度と角度を計算
     SwerveModuleState[] targetModuleSpeeds = kinematics.toSwerveModuleStates(desiredSpeeds);
@@ -202,6 +221,11 @@ public void resetOdometry(Pose2d pose) {
   odometry.resetPosition(navx.getRotation2d(), getModulePositions(), pose);
 }
 
+public void resetHeading() {
+  navx.reset();
+  odometry.resetPosition(new Rotation2d(), getModulePositions(), new Pose2d()); 
+}
+
 // 正しい型でロボット相対速度を返す
 public ChassisSpeeds getChassisSpeeds() {
   return new ChassisSpeeds(0.0, 0.0, 0.0);
@@ -220,8 +244,8 @@ public void configureAutoBuilder() {
       e.printStackTrace();
       config = new RobotConfig(
           23,  // ロボットの質量（kg）
-          3.5,   // 慣性モーメント（kg*m^2）
-          new ModuleConfig(0.0508, 4.5, 1.0, DCMotor.getNEO(1), 6.75, 40.0, 1),
+          3.8,   // 慣性モーメント（kg*m^2）
+          new ModuleConfig(0.0508, 4.110, 1.0, DCMotor.getNEO(1), 6.75, 40.0, 1),
           new Translation2d(trackWidthMeters / 2, trackLengthMeters / 2),
           new Translation2d(trackWidthMeters / 2, -trackLengthMeters / 2),
           new Translation2d(-trackWidthMeters / 2, trackLengthMeters / 2),
@@ -239,7 +263,7 @@ public void configureAutoBuilder() {
           new PIDConstants(5.0, 0.0, 0.0)  // 回転のPID
       ),
       config, // 修正した `RobotConfig`
-      () -> false,
+      () -> true,
       this
   );
 

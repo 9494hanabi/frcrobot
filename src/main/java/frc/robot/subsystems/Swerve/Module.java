@@ -14,8 +14,13 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
-// import com.kauailabs.navx.frc.AHRS;
+// import com.kauailabs.navx.frc.;
 import edu.wpi.first.units.measure.Distance;
+
+import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.PositionVoltage; 
+import com.ctre.phoenix6.signals.NeutralModeValue;
 
 class Module {
     private final SparkMax driveMotor;
@@ -27,55 +32,60 @@ class Module {
     private final PIDController drivePID;
     private final PIDController steerPID;
     public Distance getDistanceMeters;
-  
 
-  // モジュールのギア比
-  // TODO: セットする
-  private static final double gearRatio = 6.75;
-  // ホイールの直径
-  private static final double wheelDiameterMeters = Units.inchesToMeters(3);
-  // NEOの最大RPM
-  private static final double motorMaxRPM = 5880;
-  // ホイールの最大角速度。秒速回転。
-  private static final double wheelMaxAngularVelocity = motorMaxRPM / (60 * gearRatio);
-  // ホイールの最大線速度。秒速メートル。
-  static final double wheelMaxLinearVelocity =
-      wheelMaxAngularVelocity * wheelDiameterMeters * Math.PI;
-
-  // 最大ボルテージ / 最大速度 = ボルト / 秒速メートル。すなわち、秒速1メートルのスピードだすために何ボルト必要か
-
-  public Module(int id) {
-    // エンコーダーのオフセット。0から360じゃなくて-0.5から+0.5。
-    // 真っ直ぐ前にセットしてPhoenix Tunerでオフセットを測る
-    double steerEncoderOffset;
-
-    switch (id) {
-      case 0 -> { // 左前
-        driveMotor = new SparkMax(10, SparkLowLevel.MotorType.kBrushless); // TODO: CAN IDをセットする
-        steerMotor = new SparkMax(11, SparkLowLevel.MotorType.kBrushless); // TODO: CAN IDをセットする
-        steerEncoder = new CANcoder(12); // TODO: CAN IDをセットする
-        steerEncoderOffset = 0.512; // TODO: エンコーダーのオフセットをセットする
-      }
-      case 1 -> { // 右前
-        driveMotor = new SparkMax(7, SparkLowLevel.MotorType.kBrushless); // TODO: CAN IDをセットする
-        steerMotor = new SparkMax(8, SparkLowLevel.MotorType.kBrushless); // TODO: CAN IDをセットする
-        steerEncoder = new CANcoder(9); // TODO: CAN IDをセットする
-        steerEncoderOffset = 0.446; // TODO: エンコーダーのオフセットをセットする
-      }
-      case 2 -> { // 左後ろ
-        driveMotor = new SparkMax(4, SparkLowLevel.MotorType.kBrushless); // TODO: CAN IDをセットする
-        steerMotor = new SparkMax(5, SparkLowLevel.MotorType.kBrushless); // TODO: CAN IDをセットする
-        steerEncoder = new CANcoder(6); // TODO: CAN IDをセットする
-        steerEncoderOffset = 0.313; // TODO: エンコーダーのオフセットをセットする
-      }
-      case 3 -> { // 右後ろ
-        driveMotor = new SparkMax(13, SparkLowLevel.MotorType.kBrushless); // TODO: CAN IDをセットする
-        steerMotor = new SparkMax(2, SparkLowLevel.MotorType.kBrushless); // TODO: CAN IDをセットする
-        steerEncoder = new CANcoder(3); // TODO: CAN IDをセットする
-        steerEncoderOffset = 0.070; // TODO: エンコーダーのオフセットをセットする
-      }
-      default -> throw new IndexOutOfBoundsException();
-    }
+    private TalonFX krakenMotorR, krakenMotorL;
+    private Object Elevator;
+      
+    
+      // モジュールのギア比
+      // TODO: セットする
+      private static final double gearRatio = 6.75;
+      // ホイールの直径
+      private static final double wheelDiameterMeters = Units.inchesToMeters(3);
+      // NEOの最大RPM
+      private static final double motorMaxRPM = 2500;
+      // ホイールの最大角速度。秒速回転。
+      private static final double wheelMaxAngularVelocity = (motorMaxRPM / (60 * gearRatio)) / 2;
+      // ホイールの最大線速度。秒速メートル。
+      static final double wheelMaxLinearVelocity =
+          wheelMaxAngularVelocity * wheelDiameterMeters * Math.PI;
+    
+      //private static final String Elevator = null;
+          
+            // 最大ボルテージ / 最大速度 = ボルト / 秒速メートル。すなわち、秒速1メートルのスピードだすために何ボルト必要か
+          
+            public Module(int id) {
+              // エンコーダーのオフセット。0から360じゃなくて-0.5から+0.5。
+              // 真っ直ぐ前にセットしてPhoenix Tunerでオフセットを測る
+              double steerEncoderOffset;
+          
+              switch (id) {
+                case 0 -> { // 左前
+                  driveMotor = new SparkMax(10, SparkLowLevel.MotorType.kBrushless); // TODO: CAN IDをセットする
+                  steerMotor = new SparkMax(11, SparkLowLevel.MotorType.kBrushless); // TODO: CAN IDをセットする
+                  steerEncoder = new CANcoder(12); // TODO: CAN IDをセットする
+                  steerEncoderOffset = 0.512; // TODO: エンコーダーのオフセットをセットする
+                }
+                case 1 -> { // 右前
+                  driveMotor = new SparkMax(7, SparkLowLevel.MotorType.kBrushless); // TODO: CAN IDをセットする
+                  steerMotor = new SparkMax(8, SparkLowLevel.MotorType.kBrushless); // TODO: CAN IDをセットする
+                  steerEncoder = new CANcoder(9); // TODO: CAN IDをセットする
+                  steerEncoderOffset = 0.446; // TODO: エンコーダーのオフセットをセットする
+                }
+                case 2 -> { // 左後ろ
+                  driveMotor = new SparkMax(4, SparkLowLevel.MotorType.kBrushless); // TODO: CAN IDをセットする
+                  steerMotor = new SparkMax(5, SparkLowLevel.MotorType.kBrushless); // TODO: CAN IDをセットする
+                  steerEncoder = new CANcoder(6); // TODO: CAN IDをセットする
+                  steerEncoderOffset = 0.313; // TODO: エンコーダーのオフセットをセットする
+                }
+                case 3 -> { // 右後ろ
+                  driveMotor = new SparkMax(13, SparkLowLevel.MotorType.kBrushless); // TODO: CAN IDをセットする
+                  steerMotor = new SparkMax(2, SparkLowLevel.MotorType.kBrushless); // TODO: CAN IDをセットする
+                  steerEncoder = new CANcoder(3); // TODO: CAN IDをセットする
+                  steerEncoderOffset = 0.070; // TODO: エンコーダーのオフセットをセットする
+                }
+                default -> throw new IndexOutOfBoundsException();
+              }
 
     // ドライブモーターのコンフィグ
     SparkMaxConfig driveMotorConfig = new SparkMaxConfig();
