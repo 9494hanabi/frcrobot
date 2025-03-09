@@ -17,7 +17,7 @@ public class Climbsub extends SubsystemBase{
     public Climbsub (Joystick joystick) {
 
     this.joystick = joystick;
-    ClimbRight = new PWMSparkMax(9);
+    ClimbRight = new PWMSparkMax(11);
     ClimbLeft = new PWMSparkMax(10);
 
     

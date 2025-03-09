@@ -125,7 +125,7 @@ class Module {
     // ホイールがターゲットの速度に行くためのフィードバック
     drivePID = new PIDController(2 / wheelMaxLinearVelocity, 0, 0);
     // ホイールがターゲットの角度に行くためのフィードバック
-    steerPID = new PIDController(48, 0, 0.1);
+    steerPID = new PIDController(5, 0, 0.1);
     // +180度と-180度は同じだからPIDでそうセットする
     steerPID.enableContinuousInput(-.5, .5);
   

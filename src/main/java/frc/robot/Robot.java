@@ -25,6 +25,7 @@ import frc.robot.commands.Elevatorcom;
 import frc.robot.subsystems.Climbsub;
 import frc.robot.subsystems.Swerve.Swerve;
 import edu.wpi.first.wpilibj.Joystick;
+import frc.robot.subsystems.Shoot;
 
 //pathplannerのいんぽーと
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -62,6 +63,12 @@ public class Robot extends TimedRobot {
   private RobotContainer robotContainer;  // 🚀 RobotContainerを追加！
   Swerve swerve = new Swerve(0);
 
+  Elevatorsub elevator = new Elevatorsub();
+  Elevatorcom elevatorCom = new Elevatorcom(elevator, driverController,1,2);
+  Climbsub climbsub = new Climbsub(driverController);
+  Goal goal = new  Goal(driverController);
+  Shoot shoot = new Shoot(driverController);
+
 
   /**
    * This method is run when the robot is first started up and should be used for any initialization
@@ -83,10 +90,7 @@ public class Robot extends TimedRobot {
             )); // Z軸（回転）
   }
 
-  Elevatorsub elevator = new Elevatorsub();
-  Elevatorcom elevatorCom = new Elevatorcom(elevator, driverController,1,2);
-  Climbsub climbsub = new Climbsub(driverController);
-  Goal goal = new  Goal(driverController);
+  
 
   @Override
   public void robotInit() {
@@ -111,6 +115,10 @@ public class Robot extends TimedRobot {
     });
   }
 
+  @Override
+  public void teleopInit() {
+    
+  }
 
   @Override
   public void robotPeriodic() {
@@ -127,6 +135,10 @@ public class Robot extends TimedRobot {
 
     elevatorCom.execute();
     goal.goal();
+    shoot.ShootBall();
+
+
+    
 
 
   }

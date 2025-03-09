@@ -21,15 +21,16 @@ public class Elevatorcom extends Command {
 
     @Override
     public void execute() {
+        elevator.setelev(TargetPosition);
+
         if (joystick.getRawButton(upButton)) {
-            TargetPosition += 1;
-            elevator.setelev(TargetPosition); // 上昇
+            TargetPosition = 6;
         } else if (joystick.getRawButton(downButton)) {
-            TargetPosition -= 1;
-            elevator.setelev(TargetPosition); // 下降
-        } else {
-            elevator.stopElevator(TargetPosition); // 停止
-        }
+            TargetPosition = 0;
+        } 
+        // else {
+        //     elevator.stopElevator(TargetPosition); // 停止
+        // }
 
         System.out.println("Target Position" + TargetPosition);
         System.out.println("ElevatorHeight L" + elevator.getElevatorHeightL());

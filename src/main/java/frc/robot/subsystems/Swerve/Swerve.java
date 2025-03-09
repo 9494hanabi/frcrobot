@@ -141,9 +141,15 @@ public class Swerve extends SubsystemBase {
       // 現在のロボットの向きを取得
       
 
-      double X = Xspeed.getAsDouble() * maxLinearVelocityMetersPerSec; // 前後 (Y軸)
-      double Y = Yspeed.getAsDouble() * maxLinearVelocityMetersPerSec; // 左右 (X軸)
-      double Rad = Yawspeed.getAsDouble() * maxAngularVelocityRadiansPerSec; // 回転 (Z軸)
+      double X = -Xspeed.getAsDouble() * maxLinearVelocityMetersPerSec; // 前後 (Y軸)
+      double Y = -Yspeed.getAsDouble() * maxLinearVelocityMetersPerSec; // 左右 (X軸)
+      double Rad = -Yawspeed.getAsDouble() * maxAngularVelocityRadiansPerSec; // 回転 (Z軸)
+
+       // NavX からロボットの向きを取得
+       Rotation2d robotRotation = getHeading().unaryMinus();
+
+      ChassisSpeeds tadanospeed = new ChassisSpeeds(X,Y,Rad);
+
       
       //ChassisSpeeds speeds = ChassisSpeeds.fromFieldRelativeSpeeds(X,Y,Rad,robotRotation);
 
@@ -152,14 +158,13 @@ public class Swerve extends SubsystemBase {
             if (Math.abs(Y) < 0.01) Y = 0;
             if (Math.abs(Rad) < 0.01) Rad = 0;
 
-      // NavX からロボットの向きを取得
-        Rotation2d robotRotation = getHeading().unaryMinus();
+     
 
-        // フィールド相対の ChassisSpeeds を計算
-        ChassisSpeeds fieldRelativeSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(X, Y, Rad, robotRotation);
+        // // フィールド相対の ChassisSpeeds を計算
+        // ChassisSpeeds fieldRelativeSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(X, Y, Rad, robotRotation);
 
         // 計算した速度で駆動
-        drive(fieldRelativeSpeeds, null);
+        drive(tadanospeed, null);
 
       // System.out.println("ChasisSpeed:X " + X);
       // System.out.println("ChasisSpeed:Y " + Y);

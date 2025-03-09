@@ -26,7 +26,7 @@ public class Elevatorsub extends SubsystemBase{
             TalonFXConfiguration configL = new TalonFXConfiguration();
 
             configR.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-            configL.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+            configL.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
             //elev ブレーキモードに
             krakenMotorR.setNeutralMode(NeutralModeValue.Coast);
             krakenMotorL.setNeutralMode(NeutralModeValue.Coast);
@@ -51,10 +51,10 @@ public class Elevatorsub extends SubsystemBase{
             return krakenMotorR.getPosition().getValueAsDouble();
         }
         public void setelev(double targetPosition){
-            double outputL = pidController.calculate(getElevatorHeightL(),targetPosition);
-            double outputR = pidController.calculate(getElevatorHeightR(),targetPosition);
-            krakenMotorL.set(outputL*0.2);
-            krakenMotorR.set(-(outputR*0.2));
+            double outputL = pidController.calculate(getElevatorHeightL(), targetPosition);
+            double outputR = pidController.calculate(getElevatorHeightR(), targetPosition);
+            krakenMotorL.set(-(outputL*0.05));
+            krakenMotorR.set(outputR*0.05);
         }
         
         public void stopElevator(double targetPosition){
