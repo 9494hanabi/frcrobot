@@ -39,7 +39,7 @@ public class Elevatorsub extends SubsystemBase{
             krakenMotorL.setPosition(0);
 
             // PID制御の設定 (P, I, D の値はチューニング必須)
-            pidController = new PIDController(0.5, 0.0, 0.0);
+            pidController = new PIDController(0.4, 0.0, 0.0);
             pidController.setTolerance(0.05); // 許容誤差 5cm
         }
     
@@ -53,15 +53,20 @@ public class Elevatorsub extends SubsystemBase{
         public void setelev(double targetPosition){
             double outputL = pidController.calculate(getElevatorHeightL(), targetPosition);
             double outputR = pidController.calculate(getElevatorHeightR(), targetPosition);
-            krakenMotorL.set(-(outputL*0.05));
-            krakenMotorR.set(outputR*0.05);
+            krakenMotorL.set(-(outputL*0.3));
+            krakenMotorR.set(outputR*0.3);
         }
         
-        public void stopElevator(double targetPosition){
-            double outputL = pidController.calculate(getElevatorHeightL(),targetPosition);
-            double outputR = pidController.calculate(getElevatorHeightR(),targetPosition);
-            krakenMotorL.setControl(new PositionVoltage(outputL));
-            krakenMotorR.setControl(new PositionVoltage(outputR));
+        // public void stopElevator(double targetPosition){
+        //     double outputL = pidController.calculate(getElevatorHeightL(),targetPosition);
+        //     double outputR = pidController.calculate(getElevatorHeightR(),targetPosition);
+        //     krakenMotorL.setControl(new PositionVoltage(outputL));
+        //     krakenMotorR.setControl(new PositionVoltage(outputR));
+        // }
+
+        public void resetPosition() {
+            krakenMotorL.setPosition(0.0);
+            krakenMotorR.setPosition(0.0);
         }
 
 }

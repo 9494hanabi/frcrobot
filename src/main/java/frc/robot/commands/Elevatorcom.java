@@ -24,7 +24,7 @@ public class Elevatorcom extends Command {
         elevator.setelev(TargetPosition);
 
         if (joystick.getRawButton(upButton)) {
-            TargetPosition = 6;
+            TargetPosition = 4;
         } else if (joystick.getRawButton(downButton)) {
             TargetPosition = 0;
         } 
@@ -37,14 +37,18 @@ public class Elevatorcom extends Command {
         System.out.println("ElevatorHeight R" + elevator.getElevatorHeightR());
     }
 
-    @Override
-    public void end(boolean interrupted) {
-        elevator.stopElevator(TargetPosition);
-    }
+    // @Override
+    // public void end(boolean interrupted) {
+    //     elevator.stopElevator(TargetPosition);
+    // }
 
     @Override
     public boolean isFinished() {
         return false; // 常に動作し続ける
+    }
+
+    public void resetTarget() {
+        TargetPosition = 0.0;
     }
 }
 

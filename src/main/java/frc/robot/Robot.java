@@ -117,7 +117,8 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopInit() {
-    
+    elevator.resetPosition();
+    elevatorCom.resetTarget();
   }
 
   @Override
