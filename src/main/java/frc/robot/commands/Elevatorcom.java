@@ -9,7 +9,8 @@ public class Elevatorcom extends Command {
     private final Joystick joystick;
     private final int upButton;
     private final int downButton;
-    private double TargetPosition = 0.0;
+    private double TargetPosition = 0;
+    private boolean isDown = false;
 
     public Elevatorcom(Elevatorsub subsystem, Joystick joystick, int upButton, int downButton) {
         this.elevator = subsystem;
@@ -21,12 +22,21 @@ public class Elevatorcom extends Command {
 
     @Override
     public void execute() {
-        elevator.setelev(TargetPosition);
+        
 
-        if (joystick.getRawButton(upButton)) {
+        if (elevator.getElevatorHeightR() > TargetPosition) {
+            elevator.downelev(TargetPosition);
+            System.out.println("isDown is working!");
+        } else {
+            elevator.setelev(TargetPosition);
+        }
+
+        if (joystick.getRawButton(4)) {
+            TargetPosition = 6;
+        } else if (joystick.getRawButton(2)) {
             TargetPosition = 4;
-        } else if (joystick.getRawButton(downButton)) {
-            TargetPosition = 0;
+        } else if (joystick.getRawButton(1)) {
+            TargetPosition = 0.18;
         } 
         // else {
         //     elevator.stopElevator(TargetPosition); // 停止

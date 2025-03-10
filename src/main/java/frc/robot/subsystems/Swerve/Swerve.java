@@ -38,6 +38,7 @@ import edu.wpi.first.wpilibj.SPI.Port;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.SerialPort;
 
+
 //import com.fasterxml.jackson.databind.util.ArrayBuilders.DoubleBuilder;
 
 public class Swerve extends SubsystemBase {
@@ -75,9 +76,10 @@ public class Swerve extends SubsystemBase {
   private final double trackLengthMeters = 0.475;
 
   // ドライブベースの最大速度。秒速メートルと秒速ラジアン
-  private final double maxLinearVelocityMetersPerSec = Module.wheelMaxLinearVelocity;
+  private final double limitspeed = 2;
+  private final double maxLinearVelocityMetersPerSec = Module.wheelMaxLinearVelocity / limitspeed;
   private final double maxAngularVelocityRadiansPerSec =
-      Module.wheelMaxLinearVelocity / Math.hypot(trackLengthMeters / 2, trackWidthMeters / 2);
+      (Module.wheelMaxLinearVelocity  / limitspeed) / Math.hypot(trackLengthMeters / 2, trackWidthMeters / 2);
 
       
   /** NavX から現在のロボットの角度を取得（ラジアン） */
@@ -161,7 +163,7 @@ public class Swerve extends SubsystemBase {
      
 
         // // フィールド相対の ChassisSpeeds を計算
-        // ChassisSpeeds fieldRelativeSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(X, Y, Rad, robotRotation);
+        ChassisSpeeds fieldRelativeSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(X, Y, Rad, robotRotation);
 
         // 計算した速度で駆動
         drive(tadanospeed, null);

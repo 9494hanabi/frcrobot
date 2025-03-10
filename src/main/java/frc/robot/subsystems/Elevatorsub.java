@@ -11,11 +11,11 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.controller.PIDController;
 
 
-
 public class Elevatorsub extends SubsystemBase{
 
     private TalonFX krakenMotorR, krakenMotorL;
     private PIDController pidController;
+    
     
         public Elevatorsub() {
             //TODO Auto-generated constructor stub
@@ -50,13 +50,26 @@ public class Elevatorsub extends SubsystemBase{
         public double getElevatorHeightR() {
             return krakenMotorR.getPosition().getValueAsDouble();
         }
+
+
         public void setelev(double targetPosition){
             double outputL = pidController.calculate(getElevatorHeightL(), targetPosition);
             double outputR = pidController.calculate(getElevatorHeightR(), targetPosition);
-            krakenMotorL.set(-(outputL*0.3));
-            krakenMotorR.set(outputR*0.3);
+            krakenMotorL.set(-(outputL * 0.3));
+            krakenMotorR.set(outputR * 0.3);
+        }
+
+        public void downelev(double targetPosition) {
+            if (getElevatorHeightR() >= targetPosition) {
+                krakenMotorL.set(-0.05);
+                krakenMotorR.set(0.05);
+            } else {
+                return;
+            }
+            
         }
         
+
         // public void stopElevator(double targetPosition){
         //     double outputL = pidController.calculate(getElevatorHeightL(),targetPosition);
         //     double outputR = pidController.calculate(getElevatorHeightR(),targetPosition);
