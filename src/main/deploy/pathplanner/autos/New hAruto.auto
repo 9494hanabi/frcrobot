@@ -7,13 +7,25 @@
         {
           "type": "path",
           "data": {
-            "pathName": "start"
+            "pathName": "step1"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "mid"
+            "pathName": "step2"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "step3"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "step4"
           }
         }
       ]

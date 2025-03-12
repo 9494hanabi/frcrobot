@@ -84,7 +84,7 @@ public class Swerve extends SubsystemBase {
       
   /** NavX から現在のロボットの角度を取得（ラジアン） */
   public Rotation2d getHeading() {
-    return navx.getRotation2d(); 
+    return Rotation2d.fromDegrees(navx.getYaw()); 
   }
 
   public double getyaw() {
@@ -149,6 +149,10 @@ public class Swerve extends SubsystemBase {
 
        // NavX からロボットの向きを取得
        Rotation2d robotRotation = getHeading().unaryMinus();
+       System.out.println("【デバッグ】");
+       System.out.println("NavX.getYaw()  : " + navx.getYaw());
+       System.out.println("getHeading()    : " + getHeading());
+       System.out.println("robotRotation   : " + robotRotation);
 
       ChassisSpeeds tadanospeed = new ChassisSpeeds(X,Y,Rad);
 
@@ -166,7 +170,7 @@ public class Swerve extends SubsystemBase {
         ChassisSpeeds fieldRelativeSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(X, Y, Rad, robotRotation);
 
         // 計算した速度で駆動
-        drive(tadanospeed, null);
+        drive(fieldRelativeSpeeds, null);
 
       // System.out.println("ChasisSpeed:X " + X);
       // System.out.println("ChasisSpeed:Y " + Y);
@@ -230,7 +234,7 @@ public void resetOdometry(Pose2d pose) {
 
 public void resetHeading() {
   navx.reset();
-  odometry.resetPosition(new Rotation2d(), getModulePositions(), new Pose2d()); 
+  odometry.resetPosition(getHeading(), getModulePositions(), new Pose2d()); 
 }
 
 // 正しい型でロボット相対速度を返す
@@ -250,9 +254,9 @@ public void configureAutoBuilder() {
   } catch (Exception e) {
       e.printStackTrace();
       config = new RobotConfig(
-          23,  // ロボットの質量（kg）
-          3.8,   // 慣性モーメント（kg*m^2）
-          new ModuleConfig(0.0508, 4.110, 1.0, DCMotor.getNEO(1), 6.75, 40.0, 1),
+          30,  // ロボットの質量（kg）
+          6.883,   // 慣性モーメント（kg*m^2）
+          new ModuleConfig(0.0508, 4.110, 1.1, DCMotor.getNEO(1), 6.75, 40.0, 1),
           new Translation2d(trackWidthMeters / 2, trackLengthMeters / 2),
           new Translation2d(trackWidthMeters / 2, -trackLengthMeters / 2),
           new Translation2d(-trackWidthMeters / 2, trackLengthMeters / 2),

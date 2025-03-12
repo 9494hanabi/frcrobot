@@ -29,16 +29,16 @@ import frc.robot.subsystems.Shoot;
 
 //pathplannerのいんぽーと
 import com.pathplanner.lib.auto.AutoBuilder;
-// import com.pathplanner.lib.controllers.PPHolonomicDriveController;
-// import com.pathplanner.lib.controllers.PathFollowingController;
-// import com.pathplanner.lib.config.PIDConstants;
-// import com.pathplanner.lib.util.DriveFeedforwards;
-// import edu.wpi.first.math.geometry.Pose2d;
-// import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
+import com.pathplanner.lib.controllers.PathFollowingController;
+import com.pathplanner.lib.config.PIDConstants;
+import com.pathplanner.lib.util.DriveFeedforwards;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 // import com.pathplanner.lib.drive.DriveFeedforwards;
-// import com.pathplanner.lib.config.RobotConfig;
-// import com.pathplanner.lib.config.ModuleConfig;
-// import com.pathplanner.lib.config.PIDConstants;
+import com.pathplanner.lib.config.RobotConfig;
+import com.pathplanner.lib.config.ModuleConfig;
+import com.pathplanner.lib.config.PIDConstants;
 
 
 // import edu.wpi.first.math.geometry.Pose2d;
@@ -58,7 +58,7 @@ public class Robot extends TimedRobot {
   //private Joystick joystick;
   //Swerve swerve = new Swerve(0);
   Joystick driverController = new Joystick(0);
-  Joystick elevatorcontroller  = new Joystick(1);
+  // Joystick elevatorcontroller  = new Joystick(1);
 
   private RobotContainer robotContainer;  // 🚀 RobotContainerを追加！
   Swerve swerve = new Swerve(0);
@@ -66,8 +66,10 @@ public class Robot extends TimedRobot {
   Elevatorsub elevator = new Elevatorsub();
   Elevatorcom elevatorCom = new Elevatorcom(elevator, driverController,1,2);
   Climbsub climbsub = new Climbsub(driverController);
-  Goal goal = new  Goal(driverController);
+  Goal goal = new Goal(driverController);
   Shoot shoot = new Shoot(driverController);
+  private Command m_autonomousCommand;
+
 
 
   /**
@@ -122,44 +124,56 @@ public class Robot extends TimedRobot {
   }
 
   @Override
-  public void robotPeriodic() {
-    // Runs the Scheduler. This is responsible for polling buttons, adding newly-scheduled commands,
-    // running already-scheduled commands, removing finished or interrupted commands, and running
-    // subsystem periodic() methods. This must be called from the robot's periodic block in order
-    // for anything in the Command-based framework to work.
-    CommandScheduler.getInstance().run();
-    
-    // NavX の角度を SmartDashboard に表示
-    // System.out.println("NavX Heading (Degrees)" + swerve.getHeading().getDegrees());
-    // System.out.println("NavX Yaw" + swerve.getyaw());
-    // System.out.println("NavX Connected" + swerve.IsConnected());
-
+  public void teleopPeriodic() {
+    climbsub.Climb();
     elevatorCom.execute();
     goal.goal();
     shoot.ShootBall();
+  }
 
-
+  @Override
+  public void robotPeriodic() {
+    // // Runs the Scheduler. This is responsible for polling buttons, adding newly-scheduled commands,
+    // // running already-scheduled commands, removing finished or interrupted commands, and running
+    // // subsystem periodic() methods. This must be called from the robot's periodic block in order
+    // // for anything in the Command-based framework to work.
+    CommandScheduler.getInstance().run();
     
+    // // NavX の角度を SmartDashboard に表示
+    // // System.out.println("NavX Heading (Degrees)" + swerve.getHeading().getDegrees());
+    // // System.out.println("NavX Yaw" + swerve.getyaw());
+    // // System.out.println("NavX Connected" + swerve.IsConnected());
+    
+    // climbsub.Climb();
+    // elevatorCom.execute();
+    // goal.goal();
+    // shoot.ShootBall();
 
 
   }
 
-  private Command autoCommand;
 
   @Override
   public void autonomousInit() {
-    autoCommand = chooser.getSelected(); // 選択したオートを取得
-    
-    if (autoCommand == null) {
-        autoCommand = AutoBuilder.buildAuto("New Auto"); // PathPlannerのオートをロード
-        System.out.println("🚀 オートコマンドをスケジュール: " + autoCommand.getName());
-    } else {
-      System.out.println("⚠ WARNING: オートコマンドが選択されていません！");
-    }
+    m_autonomousCommand = robotContainer.getAutonoousComannd();
 
-    if (autoCommand != null) {
-        autoCommand.schedule(); // コマンドをスケジュール
+    if (m_autonomousCommand != null) {
+      m_autonomousCommand.schedule();
     }
+    // m_autonomousCommand = m_robotContainer.getAutonomous
+    
+    // autoCommand = chooser.getSelected(); // 選択したオートを取得
+    
+    // if (autoCommand == null) {
+    //     autoCommand = AutoBuilder.buildAuto("New Auto"); // PathPlannerのオートをロード
+    //     System.out.println("🚀 オートコマンドをスケジュール: " + autoCommand.getName());
+    // } else {
+    //   System.out.println("⚠ WARNING: オートコマンドが選択されていません！");
+    // }
+
+    // if (autoCommand != null) {
+    //     autoCommand.schedule(); // コマンドをスケジュール
+    // }
   }
 
   // @Override
