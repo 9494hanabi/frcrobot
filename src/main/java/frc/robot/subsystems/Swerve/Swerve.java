@@ -76,8 +76,8 @@ public class Swerve extends SubsystemBase {
   private final double trackLengthMeters = 0.475;
 
   // ドライブベースの最大速度。秒速メートルと秒速ラジアン
-  private final double limitspeed = 2;
-  private final double maxLinearVelocityMetersPerSec = Module.wheelMaxLinearVelocity / limitspeed;
+  private static double limitspeed = 1;
+  public static double maxLinearVelocityMetersPerSec = Module.wheelMaxLinearVelocity / limitspeed;
   private final double maxAngularVelocityRadiansPerSec =
       (Module.wheelMaxLinearVelocity  / limitspeed) / Math.hypot(trackLengthMeters / 2, trackWidthMeters / 2);
 
@@ -250,19 +250,22 @@ ModuleConfig moduleConfig = new ModuleConfig(0.09, 4.0, 0.9,DCMotor.getNEO(1), 6
 public void configureAutoBuilder() {
   RobotConfig config;
   try {
-      config = RobotConfig.fromGUISettings(); // GUIから設定を取得
-  } catch (Exception e) {
-      e.printStackTrace();
-      config = new RobotConfig(
-          30,  // ロボットの質量（kg）
-          6.883,   // 慣性モーメント（kg*m^2）
-          new ModuleConfig(0.0508, 4.110, 1.1, DCMotor.getNEO(1), 6.75, 40.0, 1),
-          new Translation2d(trackWidthMeters / 2, trackLengthMeters / 2),
-          new Translation2d(trackWidthMeters / 2, -trackLengthMeters / 2),
-          new Translation2d(-trackWidthMeters / 2, trackLengthMeters / 2),
-          new Translation2d(-trackWidthMeters / 2, -trackLengthMeters / 2)
-      );
-  }
+    config = RobotConfig.fromGUISettings();
+    System.out.println("✅ GUIの設定を使用しました！");
+} catch (Exception e) {
+    e.printStackTrace();
+    System.out.println("⚠️ GUIの設定が見つからないため、デフォルト設定を適用");
+    config = new RobotConfig( // デフォルト値
+        30,  // ロボットの質量（kg）
+        6.883,   // 慣性モーメント（kg*m^2）
+        new ModuleConfig(0.05408, 4.110, 1.1, DCMotor.getNEO(1), 6.75, 40.0, 1),
+        new Translation2d(trackWidthMeters / 2, trackLengthMeters / 2),
+        new Translation2d(trackWidthMeters / 2, -trackLengthMeters / 2),
+        new Translation2d(-trackWidthMeters / 2, trackLengthMeters / 2),
+        new Translation2d(-trackWidthMeters / 2, -trackLengthMeters / 2)
+    );
+}
+
 
   AutoBuilder.configure(
       this::getPose,
@@ -270,11 +273,11 @@ public void configureAutoBuilder() {
       this::getChassisSpeeds,
       this::drive,
       new PPHolonomicDriveController(
-          new PIDConstants(5.0, 0.0, 0.0), // X軸のPID
-          new PIDConstants(5.0, 0.0, 0.0)  // 回転のPID
+          new PIDConstants(0, 0.0, 0), // X軸のPID
+          new PIDConstants(0, 0.0, 0)  // 回転のPID
       ),
       config, // 修正した `RobotConfig`
-      () -> true,
+      () -> false,
       this
   );
 

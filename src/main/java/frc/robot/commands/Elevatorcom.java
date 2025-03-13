@@ -1,3 +1,65 @@
+// package frc.robot.commands;
+
+// import frc.robot.subsystems.Elevatorsub;
+// import edu.wpi.first.wpilibj.Joystick;
+// import edu.wpi.first.wpilibj.DriverStation;
+// import edu.wpi.first.wpilibj2.command.Command;
+
+// public class Elevatorcom extends Command {
+//     private final Elevatorsub elevator;
+//     private final Joystick joystick;
+//     private final int upButton;
+//     private final int downButton;
+//     private double TargetPosition = 0;
+//     private boolean isDown = false;
+//     // private boolean prevUpButtonState = false;
+//     // private boolean prevDownButtonState = false;
+//     // private boolean isClimb = false;
+//     // private int currentIndex = 0;
+//     // private final double[] heights = {0, 2, 3, 4, 6, 8};
+//     double matchTime = DriverStation.getMatchTime();
+
+//     public Elevatorcom(Elevatorsub subsystem, Joystick joystick, int upButton, int downButton) {
+//         this.elevator = subsystem;
+//         this.joystick = joystick;
+//         this.upButton = upButton;
+//         this.downButton = downButton;
+//         addRequirements(elevator);
+//     }
+    
+
+//     @Override
+//     public void execute() {
+//         if (elevator.getElevatorHeightR() > TargetPosition) {
+//             elevator.downelev(TargetPosition);
+//             System.out.println("isDown is working!");
+//         } else {
+//             elevator.setelev(TargetPosition);
+//         }
+
+//         if (joystick.getRawButton(4)) {
+//             TargetPosition = 6;
+//         } else if (joystick.getRawButton(2)) {
+//             TargetPosition = 4;
+//         } else if (joystick.getRawButton(1)) {
+//             TargetPosition = 0.18;
+//         } 
+//     }
+
+//     @Override
+//     public boolean isFinished() {
+//         return false; // 常に動作し続ける
+//     }
+
+//     public void resetTarget() {
+//         TargetPosition = 0.0;
+//     }
+// }
+
+
+
+
+
 package frc.robot.commands;
 
 import frc.robot.subsystems.Elevatorsub;
@@ -14,6 +76,7 @@ public class Elevatorcom extends Command {
     private boolean isDown = false;
     private boolean prevUpButtonState = false;
     private boolean prevDownButtonState = false;
+    private boolean isClimb = false;
     private int currentIndex = 0;
     private final double[] heights = {0, 2, 3, 4, 6, 8};
     double matchTime = DriverStation.getMatchTime();
@@ -30,8 +93,8 @@ public class Elevatorcom extends Command {
 
     @Override
     public void execute() {
-        boolean upButtonState = joystick.getRawButton(100);  // UP button elevator
-        boolean downButtonState = joystick.getRawButton(100);  // DOWN button elevator
+        boolean upButtonState = joystick.getRawButton(4);  // UP button elevator
+        boolean downButtonState = joystick.getRawButton(1);  // DOWN button elevator
 
         // ボタンが押された瞬間（false -> true）のみ処理
         if (upButtonState && !prevUpButtonState) {
@@ -50,8 +113,16 @@ public class Elevatorcom extends Command {
         prevUpButtonState = upButtonState;
         prevDownButtonState = downButtonState;
         
-        if (joystick.getRawButton(8)) {
-            elevator.climbElevator();
+        if (joystick.getRawButton(4)) {
+            isClimb = true;
+        } else if (joystick.getRawButton(1)) {
+            isClimb = false;
+        }
+
+        if (isClimb) {
+            // elevator.climbElevator();
+        } else {
+            // elevator.setelev(3);
         }
 
         // if (matchTime <= 15.0 && matchTime > 0) {

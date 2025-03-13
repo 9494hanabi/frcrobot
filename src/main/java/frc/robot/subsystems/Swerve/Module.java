@@ -74,7 +74,7 @@ class Module {
                 }
                 case 2 -> { // 左後ろ
                   driveMotor = new SparkMax(4, SparkLowLevel.MotorType.kBrushless); // TODO: CAN IDをセットする
-                  steerMotor = new SparkMax(5, SparkLowLevel.MotorType.kBrushless); // TODO: CAN IDをセットする
+                  steerMotor = new SparkMax(21, SparkLowLevel.MotorType.kBrushless); // TODO: CAN IDをセットする
                   steerEncoder = new CANcoder(6); // TODO: CAN IDをセットする
                   steerEncoderOffset = 0.313; // TODO: エンコーダーのオフセットをセットする
                 }
@@ -125,7 +125,7 @@ class Module {
     // ホイールがターゲットの速度に行くためのフィードバック
     drivePID = new PIDController(2 / wheelMaxLinearVelocity, 0, 0);
     // ホイールがターゲットの角度に行くためのフィードバック
-    steerPID = new PIDController(5, 0, 0.1);
+    steerPID = new PIDController(5, 0, 0.2);
     // +180度と-180度は同じだからPIDでそうセットする
     steerPID.enableContinuousInput(-.5, .5);
   

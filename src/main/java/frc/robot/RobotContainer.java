@@ -14,7 +14,7 @@ public class RobotContainer {
     private final Elevatorsub elevatorSubsystem = new Elevatorsub();
     private final Joystick joystick = new Joystick(0);
     private final SendableChooser<Command> autoChooser;
-    public Command getAutonoousComannd;
+    public Command getAutonomusCommand;
 
     public RobotContainer() {
         configureBindings();
@@ -33,7 +33,7 @@ public class RobotContainer {
         new JoystickButton(joystick, 1).onTrue(new Elevatorcom(elevatorSubsystem, joystick, 1, 2));
     }
 
-    Command getAutonoousComannd() {
+    Command getAutonomousCommand() {
         return autoChooser.getSelected();
     }
 

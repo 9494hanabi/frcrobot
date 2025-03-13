@@ -68,10 +68,14 @@ public class Elevatorsub extends SubsystemBase{
 
 
         public void setelev(double targetPosition){
-            double outputL = pidController.calculate(getElevatorHeightL(), targetPosition);
+            double outputL = pidController.calculate(getElevatorHeightL(), -(targetPosition));
             double outputR = pidController.calculate(getElevatorHeightR(), targetPosition);
-            krakenMotorL.set(-(outputL * 0.3));
-            krakenMotorR.set(outputR * 0.3);
+            System.out.println("outputL: " + outputL);
+            System.out.println("outputR: " + outputR);
+            System.out.println("heightL: " + getElevatorHeightL());
+            System.out.println("heightR: " + getElevatorHeightR());
+            krakenMotorL.set(outputL * 0.4);
+            krakenMotorR.set(outputR * 0.4);
         }
 
         public void downelev(double targetPosition) {
@@ -91,13 +95,12 @@ public class Elevatorsub extends SubsystemBase{
             // System.out.println("voltage now: " + voltage);
             // System.out.println("voltage as motors now: " + voltage / 12);
 
-            krakenMotorL.setVoltage(12);
-            krakenMotorR.setVoltage(12);
-
             double outputL = climbPidController.calculate(getElevatorHeightL(), 0.18);
             double outputR = climbPidController.calculate(getElevatorHeightR(), 0.18);
-            krakenMotorL.set(1);
-            krakenMotorR.set(-1);
+            if (getElevatorHeightR() > 0.1) {
+                krakenMotorL.set(0.87);
+                krakenMotorR.set(-0.87);
+            }
             System.out.println("outputLR now: " + outputR);
         }
         

@@ -26,9 +26,12 @@ import frc.robot.subsystems.Climbsub;
 import frc.robot.subsystems.Swerve.Swerve;
 import edu.wpi.first.wpilibj.Joystick;
 import frc.robot.subsystems.Shoot;
+import frc.robot.commands.Enter1second;
+import frc.robot.commands.Turn1second;
 
 //pathplannerのいんぽーと
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.controllers.PathFollowingController;
 import com.pathplanner.lib.config.PIDConstants;
@@ -39,6 +42,9 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.config.ModuleConfig;
 import com.pathplanner.lib.config.PIDConstants;
+
+
+
 
 
 // import edu.wpi.first.math.geometry.Pose2d;
@@ -155,10 +161,9 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousInit() {
-    m_autonomousCommand = robotContainer.getAutonoousComannd();
-
-    if (m_autonomousCommand != null) {
-      m_autonomousCommand.schedule();
+    Command selectedAuto = robotContainer.getAutonomousCommand();
+    if (selectedAuto != null) {
+        selectedAuto.schedule();
     }
     // m_autonomousCommand = m_robotContainer.getAutonomous
     
