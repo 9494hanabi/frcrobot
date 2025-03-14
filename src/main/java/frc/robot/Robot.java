@@ -5,9 +5,15 @@
 
 package frc.robot;
 
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
+
 // import static edu.wpi.first.wpilibj2.command.Commands.none;
 
 // import java.util.function.Consumer;
+import java.util.Optional;
+
+import org.photonvision.PhotonCamera;
 
 // import org.opencv.features2d.FlannBasedMatcher;
 
@@ -23,9 +29,14 @@ import frc.robot.subsystems.Goal;
 import frc.robot.subsystems.Climbsub;
 import frc.robot.commands.Elevatorcom;
 import frc.robot.subsystems.Climbsub;
-import frc.robot.subsystems.Swerve.Swerve;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.geometry.Translation2d;
 import frc.robot.subsystems.Shoot;
+import frc.robot.subsystems.Swerve.*;
 import frc.robot.commands.Enter1second;
 import frc.robot.commands.Turn1second;
 
@@ -38,13 +49,15 @@ import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.util.DriveFeedforwards;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+
 // import com.pathplanner.lib.drive.DriveFeedforwards;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.config.ModuleConfig;
 import com.pathplanner.lib.config.PIDConstants;
 
 
-
+import com.studica.frc.AHRS;
 
 
 // import edu.wpi.first.math.geometry.Pose2d;
@@ -68,6 +81,7 @@ public class Robot extends TimedRobot {
 
   private RobotContainer robotContainer;  // 🚀 RobotContainerを追加！
   Swerve swerve = new Swerve(0);
+  Module module;
 
   Elevatorsub elevator = new Elevatorsub();
   Elevatorcom elevatorCom = new Elevatorcom(elevator, driverController,1,2);
@@ -75,6 +89,7 @@ public class Robot extends TimedRobot {
   Goal goal = new Goal(driverController);
   Shoot shoot = new Shoot(driverController);
   private Command m_autonomousCommand;
+  Movecenter moveCenter;
 
 
 
@@ -102,28 +117,43 @@ public class Robot extends TimedRobot {
 
   @Override
   public void robotInit() {
-    // Robot の初期化時に AutoBuilder の設定を呼び出す
-    swerve.configureAutoBuilder();// コマンドが終了したらログを出力する
+    PhotonCamera photonCamera = new PhotonCamera("XX");
+    Transform3d robotToCam = new Transform3d(
+      new Translation3d(0,0,1.5),
+      new Rotation3d(0,0,0)
+    );
+              // Robot の初期化時に AutoBuilder の設定を呼び出す
+              swerve.configureAutoBuilder();// コマンドが終了したらログを出力する
+          
+              swerve.resetHeading(); // NavX の角度リセット
+          
+              robotContainer = new RobotContainer(); // 🎮 ボタン設定を初期化！
+          
+              AprilTagFieldLayout aprilTagFieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded);
+              Optional<Pose3d> tag19FieldPoseOpt = aprilTagFieldLayout.getTagPose(19);
 
-    swerve.resetHeading(); // NavX の角度リセット
+              AHRS navX = swerve.navx;
+              SwerveDriveKinematics kinematics = swerve.kinematics;
+              Module[] modules;
 
-    robotContainer = new RobotContainer(); // 🎮 ボタン設定を初期化！
-
-    
-
-    //デバッグ
-    // コマンドが終了するたびにデバッグ情報を出す
-    CommandScheduler.getInstance().onCommandFinish(command -> {
-      System.out.println("✅ コマンド終了: " + command.getName());
-
-      // もし実行中のコマンドが何もなければメッセージを出力
-      if (!CommandScheduler.getInstance().isScheduled(command)) {
-        System.out.println("🎉 全てのコマンドが完了しました！ 🎉");
-      }
-    });
+              
+          
+              //デバッグ
+              // コマンドが終了するたびにデバッグ情報を出す
+              CommandScheduler.getInstance().onCommandFinish(command -> {
+                System.out.println("✅ コマンド終了: " + command.getName());
+          
+                // もし実行中のコマンドが何もなければメッセージを出力
+                if (!CommandScheduler.getInstance().isScheduled(command)) {
+                  System.out.println("🎉 全てのコマンドが完了しました！ 🎉");
+                }
+              });
+    moveCenter = new Movecenter(photonCamera, navX, driverController, kinematics, modules, robotToCam, tag19FieldPoseOpt);
   }
-
-  @Override
+      
+      
+      
+        @Override
   public void teleopInit() {
     elevator.resetPosition();
     elevatorCom.resetTarget();
@@ -131,6 +161,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopPeriodic() {
+    moveCenter.execute();
     climbsub.Climb();
     elevatorCom.execute();
     goal.goal();

@@ -21,6 +21,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.PositionVoltage; 
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.ctre.phoenix6.swerve.jni.SwerveJNI.ModuleState;
 
 class Module {
     private final SparkMax driveMotor;
@@ -51,6 +52,11 @@ class Module {
           wheelMaxAngularVelocity * wheelDiameterMeters * Math.PI;
     
       //private static final String Elevator = null;
+
+      public static double setMaxspeed(){
+        return wheelMaxLinearVelocity;
+      }
+
           
             // 最大ボルテージ / 最大速度 = ボルト / 秒速メートル。すなわち、秒速1メートルのスピードだすために何ボルト必要か
           
@@ -86,7 +92,6 @@ class Module {
                 }
                 default -> throw new IndexOutOfBoundsException();
               }
-
     // ドライブモーターのコンフィグ
     SparkMaxConfig driveMotorConfig = new SparkMaxConfig();
     driveMotorConfig.idleMode(SparkBaseConfig.IdleMode.kBrake); // 動かない時にブレーキかける

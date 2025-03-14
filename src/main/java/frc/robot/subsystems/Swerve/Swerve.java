@@ -246,7 +246,6 @@ ModuleConfig moduleConfig = new ModuleConfig(0.09, 4.0, 0.9,DCMotor.getNEO(1), 6
 //moduleConfig.wheelCOF = 1.0;
 
 
-
 public void configureAutoBuilder() {
   RobotConfig config;
   try {
@@ -273,11 +272,11 @@ public void configureAutoBuilder() {
       this::getChassisSpeeds,
       this::drive,
       new PPHolonomicDriveController(
-          new PIDConstants(0, 0.0, 0), // X軸のPID
-          new PIDConstants(0, 0.0, 0)  // 回転のPID
+          new PIDConstants(1, 0.0, 0), // X軸のPID
+          new PIDConstants(1, 0.0, 0)  // 回転のPID
       ),
       config, // 修正した `RobotConfig`
-      () -> false,
+      () -> true,
       this
   );
 
