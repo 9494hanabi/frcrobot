@@ -138,14 +138,14 @@ public class Swerve extends SubsystemBase {
 
   
 
-  public Command teleopDrive(DoubleSupplier Xspeed, DoubleSupplier Yspeed, DoubleSupplier Yawspeed) {
+  public Command teleopDrive(DoubleSupplier forwardOp, DoubleSupplier strafeOp, DoubleSupplier turnOp) {
     return run(() -> {
       // 現在のロボットの向きを取得
       
 
-      double X = -Xspeed.getAsDouble() * maxLinearVelocityMetersPerSec; // 前後 (Y軸)
-      double Y = -Yspeed.getAsDouble() * maxLinearVelocityMetersPerSec; // 左右 (X軸)
-      double Rad = -Yawspeed.getAsDouble() * maxAngularVelocityRadiansPerSec; // 回転 (Z軸)
+      double X = -forwardOp.getAsDouble() * maxLinearVelocityMetersPerSec; // 前後 (Y軸)
+      double Y = -strafeOp.getAsDouble() * maxLinearVelocityMetersPerSec; // 左右 (X軸)
+      double Rad = -turnOp.getAsDouble() * maxAngularVelocityRadiansPerSec; // 回転 (Z軸)
 
        // NavX からロボットの向きを取得
        Rotation2d robotRotation = getHeading().unaryMinus();
@@ -205,21 +205,6 @@ public class Swerve extends SubsystemBase {
         modules[3].getPosition()
     });
   }
-
-  public Command Drive() {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'teleopDrive'");
-  }
-
-
-public Object getPose1() {
-  throw new UnsupportedOperationException("Unimplemented method 'getPose'");
-}
-
-public Object getChassisSpeeds1() {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'getChassisSpeeds'");
-}
 
 // 正しく現在のロボット位置を返す
 public Pose2d getPose() {
@@ -281,11 +266,6 @@ public void configureAutoBuilder() {
   );
 
   System.out.println("✅ AutoBuilder configured!");
-}
-
-public Command teleopDrive(Object xspeed, Object yspeed, Object yawspeed) {
-  // TODO Auto-generated method stub
-  throw new UnsupportedOperationException("Unimplemented method 'teleopDrive'");
 }
 
 }

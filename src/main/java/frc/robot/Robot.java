@@ -5,68 +5,48 @@
 
 package frc.robot;
 
-import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.apriltag.AprilTagFields;
-
-// import static edu.wpi.first.wpilibj2.command.Commands.none;
-
-// import java.util.function.Consumer;
 import java.util.Optional;
 
-import org.photonvision.PhotonCamera;
-
-// import org.opencv.features2d.FlannBasedMatcher;
-
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.wpilibj.TimedRobot;
-//import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.subsystems.Elevatorsub;
-import frc.robot.subsystems.Goal;
-import frc.robot.subsystems.Climbsub;
-import frc.robot.commands.Elevatorcom;
-import frc.robot.subsystems.Climbsub;
-import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
+
+import frc.robot.subsystems.Elevatorsub;
+import frc.robot.subsystems.Goal;
+import frc.robot.subsystems.Climbsub;
+import frc.robot.commands.Elevatorcom;
+import frc.robot.commands.MoveCenter;
+import frc.robot.subsystems.Climbsub;
 import frc.robot.subsystems.Shoot;
 import frc.robot.subsystems.Swerve.*;
 import frc.robot.subsystems.Swerve.Module;
 
-
-//pathplannerのいんぽーと
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.controllers.PathFollowingController;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.util.DriveFeedforwards;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-
-// import com.pathplanner.lib.drive.DriveFeedforwards;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.config.ModuleConfig;
 import com.pathplanner.lib.config.PIDConstants;
 
-
+import org.photonvision.PhotonCamera;
 import com.studica.frc.AHRS;
-
-
-// import edu.wpi.first.math.geometry.Pose2d;
-// import edu.wpi.first.math.kinematics.ChassisSpeeds;
-
-// import com.ctre.phoenix6.hardware.TalonFX;
-// import com.ctre.phoenix6.configs.TalonFXConfiguration;
-// import com.ctre.phoenix6.controls.PositionVoltage; 
-// import com.ctre.phoenix6.signals.NeutralModeValue;
 /**
  * The methods in this class are called automatically corresponding to each mode, as described in
  * the TimedRobot documentation. If you change the name of this class or the package after creating
@@ -74,12 +54,9 @@ import com.studica.frc.AHRS;
  */
 public class Robot extends TimedRobot {
   private final SendableChooser<Command> chooser = new SendableChooser<>();
-  //private Joystick joystick;
-  //Swerve swerve = new Swerve(0);
   Joystick driverController = new Joystick(0);
-  // Joystick elevatorcontroller  = new Joystick(1);
 
-  private RobotContainer robotContainer;  // 🚀 RobotContainerを追加！
+  private RobotContainer robotContainer;
   Swerve swerve = new Swerve(0);
   Module[] modules;
   Elevatorsub elevator = new Elevatorsub();
@@ -87,17 +64,14 @@ public class Robot extends TimedRobot {
   Climbsub climbsub = new Climbsub(driverController);
   Goal goal = new Goal(driverController);
   Shoot shoot = new Shoot(driverController);
+  MoveCenter moveCenter;
   private Command m_autonomousCommand;
-  // Movecenter moveCenter;
-
-
 
   /**
    * This method is run when the robot is first started up and should be used for any initialization
    * code.
    */
   public Robot() {
-    //chooser.setDefaultOption("Default Auto", none());
     SmartDashboard.putData("Auto choices", chooser);
 
 
@@ -116,23 +90,12 @@ public class Robot extends TimedRobot {
 
   @Override
   public void robotInit() {
-    // PhotonCamera photonCamera = new PhotonCamera("photoncamera");
-    // Transform3d robotToCam = new Transform3d(
-    //   new Translation3d(0,0,0.15),
-    //   new Rotation3d(0,0,0)
-    // );
               // Robot の初期化時に AutoBuilder の設定を呼び出す
               swerve.configureAutoBuilder();// コマンドが終了したらログを出力する
           
               swerve.resetHeading(); // NavX の角度リセット
           
               robotContainer = new RobotContainer(); // 🎮 ボタン設定を初期化！
-          
-              // AprilTagFieldLayout aprilTagFieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded);
-              // Optional<Pose3d> tag20FieldPoseOpt = aprilTagFieldLayout.getTagPose(20);
-
-              // AHRS navX = swerve.navx;
-              // SwerveDriveKinematics kinematics = swerve.kinematics;
 
               
           
@@ -146,7 +109,6 @@ public class Robot extends TimedRobot {
                   System.out.println("🎉 全てのコマンドが完了しました！ 🎉");
                 }
               });
-  //   moveCenter = new Movecenter(photonCamera, navX, driverController, kinematics, modules, robotToCam, tag20FieldPoseOpt);
   }
       
       
@@ -159,7 +121,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopPeriodic() {
-    // moveCenter.execute();
+    moveCenter.execute();
     climbsub.Climb();
     elevatorCom.execute();
     goal.goal();
@@ -173,16 +135,6 @@ public class Robot extends TimedRobot {
     // // subsystem periodic() methods. This must be called from the robot's periodic block in order
     // // for anything in the Command-based framework to work.
     CommandScheduler.getInstance().run();
-    
-    // // NavX の角度を SmartDashboard に表示
-    // // System.out.println("NavX Heading (Degrees)" + swerve.getHeading().getDegrees());
-    // // System.out.println("NavX Yaw" + swerve.getyaw());
-    // // System.out.println("NavX Connected" + swerve.IsConnected());
-    
-    // climbsub.Climb();
-    // elevatorCom.execute();
-    // goal.goal();
-    // shoot.ShootBall();
 
 
   }
@@ -194,28 +146,5 @@ public class Robot extends TimedRobot {
     if (selectedAuto != null) {
         selectedAuto.schedule();
     }
-    // m_autonomousCommand = m_robotContainer.getAutonomous
-    
-    // autoCommand = chooser.getSelected(); // 選択したオートを取得
-    
-    // if (autoCommand == null) {
-    //     autoCommand = AutoBuilder.buildAuto("New Auto"); // PathPlannerのオートをロード
-    //     System.out.println("🚀 オートコマンドをスケジュール: " + autoCommand.getName());
-    // } else {
-    //   System.out.println("⚠ WARNING: オートコマンドが選択されていません！");
-    // }
-
-    // if (autoCommand != null) {
-    //     autoCommand.schedule(); // コマンドをスケジュール
-    // }
   }
-
-  // @Override
-  // public void autonomousExit() {
-  //   autoCommand.cancel();
-  // }
-  // @Override
-  // public void autonomousPeriodic() {
-  //   //CommandScheduler.getInstance().run(); // コマンドを更新
-  // }
 }

@@ -4,10 +4,12 @@ import java.util.Optional;
 
 import frc.robot.subsystems.Swerve.*;
 import frc.robot.subsystems.*;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 
 public class MoveCenter extends Command{
     //コマンド内のメンバ変数
@@ -28,7 +30,7 @@ public class MoveCenter extends Command{
     
         public void setSwerve(Swerve swerveSubsystem) {
             this.swerve = swerveSubsystem;
-    }
+        }
         public void setVision(VisionSubsystem visionSubsystem) {
             this.vision = visionSubsystem;
         }
@@ -59,14 +61,16 @@ public class MoveCenter extends Command{
             double errorY = errorPose.getY();
             double errorYaw = errorPose.getRotation().getRadians();
 
-            double forwardOutput = forwardPID.calculate(errorX, 0);
-            double strafeOutput = strafePID.calculate(errorY, 0);
-            double turnOutput = anglePID.calculate(errorYaw, 0);
+            double forwardOp = forwardPID.calculate(errorX, 0);
+            double strafeOp = strafePID.calculate(errorY, 0);
+            double turnOp = anglePID.calculate(errorYaw, 0);
 
-            swerve.teleopDrive(forwardOutput, strafeOutput, turnOutput);
+            ChassisSpeeds optChassisSpeeds = new ChassisSpeeds(forwardOp, strafeOp, turnOp);
+
+            swerve.drive(optChassisSpeeds, null);
         }
         else {
-            swerve.teleopDrive(0,0,0);
+            swerve.drive(null, null);
         }
     }
 }
