@@ -37,6 +37,7 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import frc.robot.subsystems.Shoot;
 import frc.robot.subsystems.Swerve.*;
+import frc.robot.subsystems.Swerve.Module;
 import frc.robot.commands.Enter1second;
 import frc.robot.commands.Turn1second;
 
@@ -81,8 +82,7 @@ public class Robot extends TimedRobot {
 
   private RobotContainer robotContainer;  // 🚀 RobotContainerを追加！
   Swerve swerve = new Swerve(0);
-  Module module;
-
+  Module[] modules;
   Elevatorsub elevator = new Elevatorsub();
   Elevatorcom elevatorCom = new Elevatorcom(elevator, driverController,1,2);
   Climbsub climbsub = new Climbsub(driverController);
@@ -117,9 +117,9 @@ public class Robot extends TimedRobot {
 
   @Override
   public void robotInit() {
-    PhotonCamera photonCamera = new PhotonCamera("XX");
+    PhotonCamera photonCamera = new PhotonCamera("Arducam_OV9281_USB_Camera (1) (2)");
     Transform3d robotToCam = new Transform3d(
-      new Translation3d(0,0,1.5),
+      new Translation3d(0,0,0.15),
       new Rotation3d(0,0,0)
     );
               // Robot の初期化時に AutoBuilder の設定を呼び出す
@@ -134,7 +134,6 @@ public class Robot extends TimedRobot {
 
               AHRS navX = swerve.navx;
               SwerveDriveKinematics kinematics = swerve.kinematics;
-              Module[] modules;
 
               
           

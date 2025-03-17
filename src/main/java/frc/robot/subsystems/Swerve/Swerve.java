@@ -46,9 +46,9 @@ public class Swerve extends SubsystemBase {
   
     private Module[] modules;
   
-    private SwerveDriveKinematics kinematics;
+    public SwerveDriveKinematics kinematics;
     //NavX
-    private AHRS navx = new AHRS(AHRS.NavXComType.kMXP_SPI);
+    public AHRS navx = new AHRS(AHRS.NavXComType.kMXP_SPI);
       // 各モジュールの現在の位置を取得する（例として初期状態ならすべてゼロとする）
 //   SwerveModulePosition[] modulePositions = new SwerveModulePosition[] {
 //   new SwerveModulePosition(modules[0].getDistanceMeters(), modules[0].getAngle()),

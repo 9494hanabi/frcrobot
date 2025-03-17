@@ -23,7 +23,7 @@ import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.swerve.jni.SwerveJNI.ModuleState;
 
-class Module {
+public class Module {
     private final SparkMax driveMotor;
     private final RelativeEncoder driveEncoder;
     private final SparkMax steerMotor;

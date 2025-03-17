@@ -40,13 +40,6 @@ public class Movecenter extends SubsystemBase{
     private Transform3d robotToCam;
     private Pose3d tag19FieldPose; // AprilTag 19のフィールド上のPose
 
-
-    public Movecenter(PhotonCamera photonCamera, AHRS navX, Joystick driverController,
-            SwerveDriveKinematics kinematics, Module[] modules, Transform3d robotToCam,
-            Optional<Pose3d> tag19FieldPoseOpt) {
-        //TODO Auto-generated constructor stub
-    }
-
     /**
      * コンストラクタ
      * @param photonCamera PhotonCameraインスタンス
@@ -57,7 +50,7 @@ public class Movecenter extends SubsystemBase{
      * @param robotToCam ロボット→カメラの変換
      * @param tag19FieldPoseOpt AprilTag 19のフィールド上Pose（Optional）
      */
-    public void MoveCenter(PhotonCamera photonCamera, AHRS navX, Joystick joystick,
+    public Movecenter(PhotonCamera photonCamera, AHRS navX, Joystick joystick,
                       SwerveDriveKinematics kinematics, Module[] swerveModules,
                       Transform3d robotToCam, Optional<Pose3d> tag19FieldPoseOpt) {
         this.photonCamera = photonCamera;
@@ -79,11 +72,12 @@ public class Movecenter extends SubsystemBase{
      * ボタン10が押され、かつAprilTag 19が視界にあれば自動位置合わせ処理を実行
      */
     public void execute() {
-        if (joystick.getRawButton(10) && tag19FieldPose != null) {
+        if (tag19FieldPose != null) {
             PhotonPipelineResult result = photonCamera.getLatestResult();
             if (result.hasTargets()) {
                 PhotonTrackedTarget bestTarget = result.getBestTarget();
                 if (bestTarget.getFiducialId() == 19) {
+                    System.out.println("19 is visible.");
                     // カメラからタグへの変換（カメラ座標系での相対位置）
                     Transform3d camToTag = bestTarget.getBestCameraToTarget();
                     // タグのフィールド上Poseからカメラのフィールド上Poseを計算
@@ -94,24 +88,28 @@ public class Movecenter extends SubsystemBase{
                     double errorX = tag19FieldPose.getX() - robotFieldPose.getX();
                     double errorY = tag19FieldPose.getY() - robotFieldPose.getY();
 
-                    // 簡易比例制御（必要に応じてゲイン調整）
-                    double kP = 1.0;
-                    double vxField = errorX * kP;
-                    double vyField = errorY * kP;
-                    double omega = 0.0;  // 回転制御が必要ならここを調整
+                    System.out.println("errorX = " + errorX + "errorY" + errorY);
 
-                    // NavXの角度を用いてフィールド相対の速度をロボット座標系に変換
-                    Rotation2d robotAngle = navX.getRotation2d();
-                    ChassisSpeeds chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(vxField, vyField, omega, robotAngle);
 
-                    // 各スワーブモジュールの目標状態を計算
-                    SwerveModuleState[] moduleStates = kinematics.toSwerveModuleStates(chassisSpeeds);
-                    SwerveDriveKinematics.desaturateWheelSpeeds(moduleStates, Module.wheelMaxLinearVelocity);
 
-                    // 各モジュールへ状態を適用
-                    for (int i = 0; i < moduleStates.length; i++) {
-                        swerveModules[i].run(moduleStates[i]);
-                    }
+                    // // 簡易比例制御（必要に応じてゲイン調整）
+                    // double kP = 1.0;
+                    // double vxField = errorX * kP;
+                    // double vyField = errorY * kP;
+                    // double omega = 0.0;  // 回転制御が必要ならここを調整
+
+                    // // NavXの角度を用いてフィールド相対の速度をロボット座標系に変換
+                    // Rotation2d robotAngle = navX.getRotation2d();
+                    // ChassisSpeeds chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(vxField, vyField, omega, robotAngle);
+
+                    // // 各スワーブモジュールの目標状態を計算
+                    // SwerveModuleState[] moduleStates = kinematics.toSwerveModuleStates(chassisSpeeds);
+                    // SwerveDriveKinematics.desaturateWheelSpeeds(moduleStates, Module.wheelMaxLinearVelocity);
+
+                    // // 各モジュールへ状態を適用
+                    // for (int i = 0; i < moduleStates.length; i++) {
+                    //     swerveModules[i].run(moduleStates[i]);
+                    // }
                 }
             }
         }
