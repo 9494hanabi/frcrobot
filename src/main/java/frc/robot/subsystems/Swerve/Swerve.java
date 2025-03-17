@@ -150,9 +150,9 @@ public class Swerve extends SubsystemBase {
        // NavX からロボットの向きを取得
        Rotation2d robotRotation = getHeading().unaryMinus();
        System.out.println("【デバッグ】");
-       System.out.println("NavX.getYaw()  : " + navx.getYaw());
-       System.out.println("getHeading()    : " + getHeading());
-       System.out.println("robotRotation   : " + robotRotation);
+      //  System.out.println("NavX.getYaw()  : " + navx.getYaw());
+      //  System.out.println("getHeading()    : " + getHeading());
+      //  System.out.println("robotRotation   : " + robotRotation);
 
       ChassisSpeeds tadanospeed = new ChassisSpeeds(X,Y,Rad);
 
@@ -281,6 +281,11 @@ public void configureAutoBuilder() {
   );
 
   System.out.println("✅ AutoBuilder configured!");
+}
+
+public Command teleopDrive(Object xspeed, Object yspeed, Object yawspeed) {
+  // TODO Auto-generated method stub
+  throw new UnsupportedOperationException("Unimplemented method 'teleopDrive'");
 }
 
 }

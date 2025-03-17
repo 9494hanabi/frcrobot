@@ -113,17 +113,17 @@ public class Elevatorcom extends Command {
         prevUpButtonState = upButtonState;
         prevDownButtonState = downButtonState;
         
-        if (joystick.getRawButton(4)) {
-            isClimb = true;
-        } else if (joystick.getRawButton(1)) {
-            isClimb = false;
-        }
+        // if (joystick.getRawButton(4)) {
+        //     isClimb = true;
+        // } else if (joystick.getRawButton(1)) {
+        //     isClimb = false;
+        // }
 
-        if (isClimb) {
-            // elevator.climbElevator();
-        } else {
-            // elevator.setelev(3);
-        }
+        // if (isClimb) {
+        //     elevator.climbElevator();
+        // } else {
+        //     // elevator.setelev(3);
+        // }
 
         // if (matchTime <= 15.0 && matchTime > 0) {
         //     if (joystick.getRawButton(8)) {
@@ -140,9 +140,13 @@ public class Elevatorcom extends Command {
         //     }
         // }
 
-        // System.out.println("Target Position" + TargetPosition);
-        // System.out.println("ElevatorHeight L" + elevator.getElevatorHeightL());
-        // System.out.println("ElevatorHeight R" + elevator.getElevatorHeightR());
+        if (joystick.getRawButton(4)) {
+            elevator.setelev(3);
+        }
+
+        System.out.println("Target Position" + TargetPosition);
+        System.out.println("ElevatorHeight L" + elevator.getElevatorHeightL());
+        System.out.println("ElevatorHeight R" + elevator.getElevatorHeightR());
     }
 
     @Override

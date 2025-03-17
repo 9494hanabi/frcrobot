@@ -38,8 +38,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import frc.robot.subsystems.Shoot;
 import frc.robot.subsystems.Swerve.*;
 import frc.robot.subsystems.Swerve.Module;
-import frc.robot.commands.Enter1second;
-import frc.robot.commands.Turn1second;
+
 
 //pathplannerのいんぽーと
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -89,7 +88,7 @@ public class Robot extends TimedRobot {
   Goal goal = new Goal(driverController);
   Shoot shoot = new Shoot(driverController);
   private Command m_autonomousCommand;
-  Movecenter moveCenter;
+  // Movecenter moveCenter;
 
 
 
@@ -117,11 +116,11 @@ public class Robot extends TimedRobot {
 
   @Override
   public void robotInit() {
-    PhotonCamera photonCamera = new PhotonCamera("Arducam_OV9281_USB_Camera (1) (2)");
-    Transform3d robotToCam = new Transform3d(
-      new Translation3d(0,0,0.15),
-      new Rotation3d(0,0,0)
-    );
+    // PhotonCamera photonCamera = new PhotonCamera("photoncamera");
+    // Transform3d robotToCam = new Transform3d(
+    //   new Translation3d(0,0,0.15),
+    //   new Rotation3d(0,0,0)
+    // );
               // Robot の初期化時に AutoBuilder の設定を呼び出す
               swerve.configureAutoBuilder();// コマンドが終了したらログを出力する
           
@@ -129,11 +128,11 @@ public class Robot extends TimedRobot {
           
               robotContainer = new RobotContainer(); // 🎮 ボタン設定を初期化！
           
-              AprilTagFieldLayout aprilTagFieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded);
-              Optional<Pose3d> tag19FieldPoseOpt = aprilTagFieldLayout.getTagPose(19);
+              // AprilTagFieldLayout aprilTagFieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded);
+              // Optional<Pose3d> tag20FieldPoseOpt = aprilTagFieldLayout.getTagPose(20);
 
-              AHRS navX = swerve.navx;
-              SwerveDriveKinematics kinematics = swerve.kinematics;
+              // AHRS navX = swerve.navx;
+              // SwerveDriveKinematics kinematics = swerve.kinematics;
 
               
           
@@ -147,7 +146,7 @@ public class Robot extends TimedRobot {
                   System.out.println("🎉 全てのコマンドが完了しました！ 🎉");
                 }
               });
-    moveCenter = new Movecenter(photonCamera, navX, driverController, kinematics, modules, robotToCam, tag19FieldPoseOpt);
+  //   moveCenter = new Movecenter(photonCamera, navX, driverController, kinematics, modules, robotToCam, tag20FieldPoseOpt);
   }
       
       
@@ -160,7 +159,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopPeriodic() {
-    moveCenter.execute();
+    // moveCenter.execute();
     climbsub.Climb();
     elevatorCom.execute();
     goal.goal();

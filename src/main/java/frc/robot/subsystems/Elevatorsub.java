@@ -27,8 +27,8 @@ public class Elevatorsub extends SubsystemBase{
     
         public Elevatorsub() {
             //TODO Auto-generated constructor stub
-            krakenMotorR = new TalonFX(15);
-            krakenMotorL = new TalonFX(16);
+            krakenMotorR = new TalonFX(0);
+            krakenMotorL = new TalonFX(15);
         
             TalonFXConfiguration configR = new TalonFXConfiguration();
             TalonFXConfiguration configL = new TalonFXConfiguration();
@@ -74,8 +74,8 @@ public class Elevatorsub extends SubsystemBase{
             System.out.println("outputR: " + outputR);
             System.out.println("heightL: " + getElevatorHeightL());
             System.out.println("heightR: " + getElevatorHeightR());
-            krakenMotorL.set(outputL * 0.4);
-            krakenMotorR.set(outputR * 0.4);
+            krakenMotorL.set(outputL * 2);
+            krakenMotorR.set(outputR * 2);
         }
 
         public void downelev(double targetPosition) {

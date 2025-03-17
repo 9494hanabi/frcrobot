@@ -48,34 +48,22 @@ public class Goal extends SubsystemBase {
         //  今後はPOVのボタンだけでredLineMotorもおけるようにする
         // System.out.println("this is " + POVangle);
 
-        if (keyX) {
-            redLineMotor.set(0.1);
-        }else if (keyL) {
-            redLineMotor.set(-0.5);
-        }else{
-            redLineMotor.set(0);
-        }
 
-        // System.out.println("senaTalon is " + getsenaTalon());
-
-        if (POVangle == 270){
-            double output = pidController.calculate(getsenaTalon(), 0.2);
-            senaTalon.set(output);
-        }
-
-        // if (POVangle == 90) {
+        // if (POVangle == 270) {
         //     setpoint = 0.5;
-        //     redLineMotor.set(-0.2);
-        // } else if (POVangle == 270) {
+        //     redLineMotor.set(-0.1);
+        // } else if (POVangle == 90) {
         //     setpoint = 0.0;
-        //     redLineMotor.set(-0.2);
+        //     redLineMotor.set(-0.1);
         // } else {
         //     setpoint = 0.25;
-        //     redLineMotor.set(0.2);
+        //     redLineMotor.set(0.1);
         // }
 
-        // double output = pidController.calculate(getsenaTalon(), setpoint);
-        // senaTalon.set(output);
+        double output = pidController.calculate(getsenaTalon(), setpoint);
+        // senaTalon.set(output * 3);
+
+        // System.out.println(output);
 
 
         // if (POVangle == 90) {
