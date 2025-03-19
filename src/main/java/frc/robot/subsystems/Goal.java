@@ -24,7 +24,7 @@ public class Goal extends SubsystemBase {
     public Goal(Joystick joystick) {
         this.joystick = joystick;
 
-        redLineMotor = new PWMSparkMax(7);
+        redLineMotor = new PWMSparkMax(1);
         senaTalon = new TalonFX(17);
 
         TalonFXConfiguration configsena = new TalonFXConfiguration();

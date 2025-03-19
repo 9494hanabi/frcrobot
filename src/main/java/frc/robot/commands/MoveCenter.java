@@ -1,10 +1,8 @@
 package frc.robot.commands;
 
 import java.util.Optional;
-
 import frc.robot.subsystems.Swerve.*;
 import frc.robot.subsystems.*;
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -13,7 +11,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 
 public class MoveCenter extends Command{
     //コマンド内のメンバ変数
-    private Swerve swerve = new Swerve(0);
+    private Swerve swerve = new Swerve();
     private VisionSubsystem vision;  
         private final PIDController forwardPID = new PIDController(1, 0, 0);
         private final PIDController strafePID = new PIDController(1,0,0);

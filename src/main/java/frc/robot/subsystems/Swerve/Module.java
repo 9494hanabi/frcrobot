@@ -14,126 +14,114 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
-// import com.kauailabs.navx.frc.;
-import edu.wpi.first.units.measure.Distance;
-
-import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.PositionVoltage; 
-import com.ctre.phoenix6.signals.NeutralModeValue;
-import com.ctre.phoenix6.swerve.jni.SwerveJNI.ModuleState;
 
 public class Module {
-    private final SparkMax driveMotor;
-    private final RelativeEncoder driveEncoder;
-    private final SparkMax steerMotor;
-    private final CANcoder steerEncoder;
-  
-    private final SimpleMotorFeedforward driveFeedforward;
-    private final PIDController drivePID;
-    private final PIDController steerPID;
-    public Distance getDistanceMeters;
+  private final SparkMax driveMotor;
+  private final RelativeEncoder driveEncoder;
+  private final SparkMax steerMotor;
+  private final CANcoder steerEncoder;
 
-    private TalonFX krakenMotorR, krakenMotorL;
-    private Object Elevator;
-      
-    
-      // モジュールのギア比
-      // TODO: セットする
-      private static final double gearRatio = 6.75;
-      // ホイールの直径
-      private static final double wheelDiameterMeters = Units.inchesToMeters(3);
-      // NEOの最大RPM
-      private static final double motorMaxRPM = 2500;
-      // ホイールの最大角速度。秒速回転。
-      private static final double wheelMaxAngularVelocity = (motorMaxRPM / (60 * gearRatio)) / 2;
-      // ホイールの最大線速度。秒速メートル。
-      static final double wheelMaxLinearVelocity =
-          wheelMaxAngularVelocity * wheelDiameterMeters * Math.PI;
-    
-      //private static final String Elevator = null;
+  private final SimpleMotorFeedforward driveFeedforward;
+  private final PIDController drivePID;
+  private final PIDController steerPID;
 
-      public static double setMaxspeed(){
-        return wheelMaxLinearVelocity;
+  private static double gearRatio = 6.75;
+  private static double wheelDiameterMeters = Units.inchesToMeters(3);
+  private static double motorMaxRPM = 5676;
+
+  private static double wheelMaxAngularVelocity = (motorMaxRPM / (60 * gearRatio)) / 2;
+  private static double wheelMaxLinearVelocity = wheelMaxAngularVelocity * wheelDiameterMeters * Math.PI;
+
+  public static double getGearRatio() {
+    return gearRatio;
+  }
+
+  public static void setGearRatio(double ratio) {
+    gearRatio = ratio;
+    updateDerivedValues();
+  }
+
+  public static double getMotorMaxRPM() {
+    return motorMaxRPM;
+  }
+
+  public static void setMotorMaxRPM(double rpm) {
+    motorMaxRPM = rpm;
+    updateDerivedValues();
+  }
+
+  public static double getwheelMaxAngularVelocity() {
+    return wheelMaxAngularVelocity;
+  }
+
+  public static double getwheelMaxLinearVelocity() {
+    return wheelMaxLinearVelocity;
+  }
+
+  public static void setwheelMaxLinearVelocity (double maxLinearVel) {
+    wheelMaxLinearVelocity = maxLinearVel;
+  }
+
+  public static void updateDerivedValues() {
+    wheelMaxAngularVelocity = (motorMaxRPM / (60 * gearRatio)) / 2;
+    wheelMaxLinearVelocity = wheelMaxAngularVelocity * wheelDiameterMeters * Math.PI;
+  }
+
+  public Module(int id) {
+    double steerEncoderOffset;
+
+    switch (id) {
+      case 0 -> { //左前
+        driveMotor = new SparkMax(10, SparkLowLevel.MotorType.kBrushless);
+        steerMotor = new SparkMax(11, SparkLowLevel.MotorType.kBrushless);
+        steerEncoder = new CANcoder(12);
+        steerEncoderOffset = 0.512;
       }
+      case 1 -> { //右前
+        driveMotor = new SparkMax(7, SparkLowLevel.MotorType.kBrushless);
+        steerMotor = new SparkMax(8, SparkLowLevel.MotorType.kBrushless);
+        steerEncoder = new CANcoder(9);
+        steerEncoderOffset = 0.446;
+      }
+      case 2 -> { //左後ろ
+        driveMotor = new SparkMax(4, SparkLowLevel.MotorType.kBrushless);
+        steerMotor = new SparkMax(21, SparkLowLevel.MotorType.kBrushless);
+        steerEncoder = new CANcoder(6);
+        steerEncoderOffset = 0.313;
+      }
+      case 3 -> { //右後ろ
+        driveMotor = new SparkMax(13, SparkLowLevel.MotorType.kBrushless);
+        steerMotor = new SparkMax(2, SparkLowLevel.MotorType.kBrushless);
+        steerEncoder = new CANcoder(3);
+        steerEncoderOffset = 0.070;
+      }
+      default -> throw new IndexOutOfBoundsException("Invalid Module ID:" + id);
+    }
 
-          
-            // 最大ボルテージ / 最大速度 = ボルト / 秒速メートル。すなわち、秒速1メートルのスピードだすために何ボルト必要か
-          
-            public Module(int id) {
-              // エンコーダーのオフセット。0から360じゃなくて-0.5から+0.5。
-              // 真っ直ぐ前にセットしてPhoenix Tunerでオフセットを測る
-              double steerEncoderOffset;
-          
-              switch (id) {
-                case 0 -> { // 左前
-                  driveMotor = new SparkMax(10, SparkLowLevel.MotorType.kBrushless); // TODO: CAN IDをセットする
-                  steerMotor = new SparkMax(11, SparkLowLevel.MotorType.kBrushless); // TODO: CAN IDをセットする
-                  steerEncoder = new CANcoder(12); // TODO: CAN IDをセットする
-                  steerEncoderOffset = 0.512; // TODO: エンコーダーのオフセットをセットする
-                }
-                case 1 -> { // 右前
-                  driveMotor = new SparkMax(7, SparkLowLevel.MotorType.kBrushless); // TODO: CAN IDをセットする
-                  steerMotor = new SparkMax(8, SparkLowLevel.MotorType.kBrushless); // TODO: CAN IDをセットする
-                  steerEncoder = new CANcoder(9); // TODO: CAN IDをセットする
-                  steerEncoderOffset = 0.446; // TODO: エンコーダーのオフセットをセットする
-                }
-                case 2 -> { // 左後ろ
-                  driveMotor = new SparkMax(4, SparkLowLevel.MotorType.kBrushless); // TODO: CAN IDをセットする
-                  steerMotor = new SparkMax(21, SparkLowLevel.MotorType.kBrushless); // TODO: CAN IDをセットする
-                  steerEncoder = new CANcoder(6); // TODO: CAN IDをセットする
-                  steerEncoderOffset = 0.313; // TODO: エンコーダーのオフセットをセットする
-                }
-                case 3 -> { // 右後ろ
-                  driveMotor = new SparkMax(13, SparkLowLevel.MotorType.kBrushless); // TODO: CAN IDをセットする
-                  steerMotor = new SparkMax(2, SparkLowLevel.MotorType.kBrushless); // TODO: CAN IDをセットする
-                  steerEncoder = new CANcoder(3); // TODO: CAN IDをセットする
-                  steerEncoderOffset = 0.070; // TODO: エンコーダーのオフセットをセットする
-                }
-                default -> throw new IndexOutOfBoundsException();
-              }
-    // ドライブモーターのコンフィグ
+    //ドライブモーターの設定
     SparkMaxConfig driveMotorConfig = new SparkMaxConfig();
-    driveMotorConfig.idleMode(SparkBaseConfig.IdleMode.kBrake); // 動かない時にブレーキかける
-    driveMotorConfig.smartCurrentLimit(45); // モーターの電流の制御 (6０アンペアマックス)
-    // モーターの回転からホイールのメートル距離への変換
+    driveMotorConfig.idleMode(SparkBaseConfig.IdleMode.kBrake);
+    driveMotorConfig.smartCurrentLimit(45);
     driveMotorConfig.encoder.positionConversionFactor(wheelDiameterMeters * Math.PI / gearRatio);
-    // モーターのRPMからホイールの秒速メートルへの変換
-    driveMotorConfig.encoder.velocityConversionFactor(
-        wheelDiameterMeters * Math.PI / (gearRatio * 60));
-
-    // ドライブモーターのセンサー
+    driveMotorConfig.encoder.velocityConversionFactor(wheelDiameterMeters * Math.PI /(gearRatio * 60));
     driveEncoder = driveMotor.getEncoder();
+    driveMotor.configure(driveMotorConfig, SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kNoPersistParameters);
 
-    // コンフィグをセットする
-    driveMotor.configure(
-        driveMotorConfig,
-        SparkBase.ResetMode.kResetSafeParameters,
-        SparkBase.PersistMode.kNoPersistParameters);
-
+    //ステアモーターの設定
     SparkMaxConfig steerMotorConfig = new SparkMaxConfig();
     steerMotorConfig.idleMode(SparkBaseConfig.IdleMode.kBrake);
-    // NEO 550は燃えやすいから電流制御結構低くないとダメなの。
-    // 30アンペアでも高いかも。d
     steerMotorConfig.smartCurrentLimit(25);
+    steerMotor.configure(steerMotorConfig, SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kNoPersistParameters);
 
-    steerMotor.configure(
-        steerMotorConfig,
-        SparkBase.ResetMode.kResetSafeParameters,
-        SparkBase.PersistMode.kNoPersistParameters);
-
+    //ステアエンコーダの設定
     CANcoderConfiguration steerEncoderConfig = new CANcoderConfiguration();
     steerEncoderConfig.MagnetSensor.MagnetOffset = steerEncoderOffset;
     steerEncoder.getConfigurator().apply(steerEncoderConfig);
 
     driveFeedforward = new SimpleMotorFeedforward(0, 12 / wheelMaxLinearVelocity);
-    // ホイールがターゲットの速度に行くためのフィードバック
     drivePID = new PIDController(2 / wheelMaxLinearVelocity, 0, 0);
-    // ホイールがターゲットの角度に行くためのフィードバック
     steerPID = new PIDController(5, 0, 0.2);
-    // +180度と-180度は同じだからPIDでそうセットする
-    steerPID.enableContinuousInput(-.5, .5);
-  
+    steerPID.enableContinuousInput(-0.5, 0.5);
   }
 
   public SwerveModulePosition getPosition() {
@@ -143,26 +131,14 @@ public class Module {
   }
 
   void run(SwerveModuleState desiredState) {
-    // センサーからデータゲット
     double currentSteerAngleRotations = steerEncoder.getAbsolutePosition().getValueAsDouble();
-    double currentMotorVelMetersPerSec = driveEncoder.getVelocity();
-
-    // たまにはターゲットの速度とターゲットの角度をひっくり返すほうが速い
-    // こうすればホイールの回転は最大で90度
+    double currentMotorVelMeterPerSec = driveEncoder.getVelocity();
     desiredState.optimize(Rotation2d.fromRotations(currentSteerAngleRotations));
-
     driveMotor.setVoltage(
-        // フィードフォワードで必要なボルテージ予測し、フィードバックでターゲットからの逸脱に反応する
-        driveFeedforward.calculate(desiredState.speedMetersPerSecond)
-            + drivePID.calculate(
-                currentMotorVelMetersPerSec, // 今の速度
-                desiredState.speedMetersPerSecond)); // ターゲットの速度
-    steerMotor.setVoltage(
-        // フィードバックでターゲットからの逸脱に反応する
-        steerPID.calculate(
-            currentSteerAngleRotations, // 今のポジション
-            desiredState.angle.getRotations())); // ターゲットのポジション
+      driveFeedforward.calculate(desiredState.speedMetersPerSecond) + drivePID.calculate(currentMotorVelMeterPerSec, desiredState.speedMetersPerSecond));
+    steerMotor.setVoltage(steerPID.calculate(currentSteerAngleRotations, desiredState.angle.getRotations()));
   }
+
   public double getDistanceMeters() {
     return driveEncoder.getPosition();
   }
@@ -170,5 +146,4 @@ public class Module {
   public Rotation2d getAngle() {
     return Rotation2d.fromRotations(steerEncoder.getAbsolutePosition().getValueAsDouble());
   }
-
 }
