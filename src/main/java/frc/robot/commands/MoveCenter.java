@@ -9,66 +9,61 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 
-public class MoveCenter extends Command{
-    //コマンド内のメンバ変数
-    private Swerve swerve = new Swerve();
-    private VisionSubsystem vision;  
-        private final PIDController forwardPID = new PIDController(1, 0, 0);
-        private final PIDController strafePID = new PIDController(1,0,0);
-        private final PIDController anglePID = new PIDController(1,0,0);
+public class MoveCenter extends Command {
+    private final Swerve swerve;
+    private final VisionSubsystem vision;
     
-        //目標タグの設定＆停止オフセット設定
-        private final int targetTagID = 19;
-        private final double stopDistance = 0.5; //単位：m(メートル)
-    
-        public MoveCenter(Swerve swerveSubsystem) {
-            setSwerve(swerveSubsystem);
-            addRequirements(swerveSubsystem);
-        }
-    
-        public void setSwerve(Swerve swerveSubsystem) {
-            this.swerve = swerveSubsystem;
-        }
-        public void setVision(VisionSubsystem visionSubsystem) {
-            this.vision = visionSubsystem;
-        }
+    private final PIDController forwardPID;
+    private final PIDController strafePID;
+    private final PIDController anglePID;
 
-    public Swerve getSwerve() {
-        return this.swerve;
-    }
+    private final int targetTagID = 20;
+    private final double stopDistance = 0.5;
 
-    public VisionSubsystem getVision() {
-        return this.vision;
+    public MoveCenter(Swerve swerveSubsystem, VisionSubsystem visionSubsystem) {
+        this.swerve = swerveSubsystem;
+        this.vision = visionSubsystem;
+        addRequirements(swerveSubsystem);
+
+        forwardPID = new PIDController(0.2, 0.0, 0.01);
+        strafePID = new PIDController(0.2, 0, 0.01);
+        anglePID = new PIDController(0.1, 0.0, 0.005);
     }
 
     @Override
     public void execute() {
-        Optional<Pose2d> tagPopseOpt = vision.getTagPose2d(targetTagID);
-        if (tagPopseOpt.isPresent()) {
-            Pose2d tagPose = tagPopseOpt.get();
+        Optional<Pose2d> tagPoseOpt = vision.getTagPose2d(targetTagID);
+        if (tagPoseOpt.isPresent()) {
+            Pose2d tagPose = tagPoseOpt.get();
             Rotation2d tagRot = tagPose.getRotation();
-            Pose2d targetPose = new Pose2d(
-                tagPose.getX() - stopDistance * Math.cos(tagRot.getRadians()),
-                tagPose.getY() - stopDistance * Math.sin(tagRot.getRadians()),
-                tagRot.plus(Rotation2d.fromDegrees(180))
-            );
-
+            
             Pose2d currentPose = swerve.getPose();
-            Pose2d errorPose = targetPose.relativeTo(currentPose);
-            double errorX = errorPose.getX();
-            double errorY = errorPose.getY();
-            double errorYaw = errorPose.getRotation().getRadians();
+
+            double targetX = tagPose.getX() - stopDistance * Math.cos(tagRot.getRadians());
+            double targetY = tagPose.getY() - stopDistance * Math.sin(tagRot.getRadians());
+            Rotation2d targetRot = tagRot.plus(Rotation2d.fromDegrees(180));
+
+            double errorX = targetX - currentPose.getX();
+            double errorY = targetY - currentPose.getY();
+            double errorTheta = targetRot.minus(currentPose.getRotation()).getRadians();
+            errorTheta = Math.atan2(Math.sin(errorTheta), Math.cos(errorTheta)); // -π ~ π の範囲に正規化
 
             double forwardOp = forwardPID.calculate(errorX, 0);
             double strafeOp = strafePID.calculate(errorY, 0);
-            double turnOp = anglePID.calculate(errorYaw, 0);
+            double turnOp = anglePID.calculate(errorTheta, 0);
 
-            ChassisSpeeds optChassisSpeeds = new ChassisSpeeds(forwardOp, strafeOp, turnOp);
+            ChassisSpeeds optChassisSpeeds = new ChassisSpeeds(-forwardOp, strafeOp, turnOp);
 
-            swerve.drive(optChassisSpeeds, null);
+            System.out.println("optChassis : " + optChassisSpeeds);
+            swerve.drive(optChassisSpeeds, null); // フィールドオリエンテーションを考慮
+        } else {
+            swerve.drive(new ChassisSpeeds(0, 0, 0), null);
         }
-        else {
-            swerve.drive(null, null);
-        }
+    }
+
+    @Override
+    public boolean isFinished() {
+        // 常時実行する場合は false を返す（必要に応じて条件を追加してください）
+        return false;
     }
 }

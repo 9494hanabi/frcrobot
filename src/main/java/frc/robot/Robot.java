@@ -5,9 +5,11 @@
 
 package frc.robot;
 
+
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+
 
 public class Robot extends TimedRobot {
 
@@ -33,7 +35,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousInit() {
-    Command autoCommand = robotContainer.getAutonomusCommand();
+    Command autoCommand = robotContainer.getAutonomousCommand();
     if (autoCommand != null) {
       autoCommand.schedule();
     }

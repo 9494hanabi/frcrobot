@@ -58,7 +58,7 @@ public class Swerve extends SubsystemBase {
   }
 
   public Rotation2d getHeading() {
-    return Rotation2d .fromDegrees(navx.getYaw());
+    return Rotation2d .fromDegrees(navx.getYaw() + 25);
   }
 
   public double getYaw() {

@@ -121,7 +121,7 @@ public class Module {
     driveFeedforward = new SimpleMotorFeedforward(0, 12 / wheelMaxLinearVelocity);
     drivePID = new PIDController(2 / wheelMaxLinearVelocity, 0, 0);
     steerPID = new PIDController(5, 0, 0.2);
-    steerPID.enableContinuousInput(-0.5, 0.5);
+    steerPID.enableContinuousInput(-.5, .5);
   }
 
   public SwerveModulePosition getPosition() {

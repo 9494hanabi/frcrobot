@@ -1,5 +1,6 @@
 // package frc.robot.commands;
 
+// import frc.robot.subsystems.Climb;
 // import edu.wpi.first.wpilibj.Joystick;
 // import edu.wpi.first.wpilibj.motorcontrol.PWMTalonSRX;
 // import edu.wpi.first.wpilibj2.command.Command;
@@ -9,11 +10,12 @@
 //     private final PWMTalonSRX ClimbLeftl;
 //     private final Joystick joysitck;
    
-//     public Climbcom(Joystick joystick, int downButton) {
+//     public Climbcom(Climbsub climbSubsystem, Joystick joystick) {
 //         this.joysitck = joystick;
+//         addRequirements();
+//     }
 
-//         if (downButton == true) {
+//     public void execute() {
 
-//         }
 //     }
 // }

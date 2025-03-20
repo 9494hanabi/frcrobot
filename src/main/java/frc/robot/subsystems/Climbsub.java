@@ -22,7 +22,7 @@ public class Climbsub extends SubsystemBase{
 
     this.joystick = joystick;
     ClimbRight = new PWMTalonSRX(0);
-    ClimbLeft = new PWMTalonSRX(1);
+    ClimbLeft = new PWMTalonSRX(2);
 
     
     ClimbLeft.setInverted(true);
@@ -32,13 +32,13 @@ public class Climbsub extends SubsystemBase{
     public void Climb() {
         boolean climbKey = joystick.getRawButton(8);
 
-        // if (climbKey) {
-        //     ClimbLeft.set(-0.3);
-        //     ClimbRight.set(-0.3);
-        //     System.out.println("button pushed");
-        // }else{
-        //     ClimbLeft.set(0);
-        //     ClimbRight.set(0);
-        // }
+        if (climbKey) {
+            ClimbLeft.set(-0.5);
+            ClimbRight.set(-0.5);
+            System.out.println("button pushed");
+        }else{
+            ClimbLeft.set(0);
+            ClimbRight.set(0);
+        }
     }
 }

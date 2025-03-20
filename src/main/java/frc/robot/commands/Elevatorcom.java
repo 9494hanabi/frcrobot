@@ -1,42 +1,67 @@
 package frc.robot.commands;
 
 import frc.robot.subsystems.Elevatorsub;
+import frc.robot.subsystems.Goal;
 import edu.wpi.first.wpilibj.Joystick;
 
 import java.lang.annotation.Target;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.subsystems.Climbsub;
 
 public class Elevatorcom extends Command {
     private final Elevatorsub elevator;
     private final Joystick joystick;
+    private final Goal goal;
     private final int upButton;
     private final int downButton;
+    private final Climbsub climbsub;
+    // private final int rightButton;
+    // private final int leftButton;
+    private final int modeChange;
     private double TargetPosition = 0;
     private boolean isDown = false;
     private boolean prevUpButtonState = false;
     private boolean prevDownButtonState = false;
     private boolean isClimb = false;
     private int currentIndex = 1;
-    private final String[] modes = {"ClimbMode", "L4 Mode", "L3 Mode", "L2 Mode", "L1 Mode", "L1 Mode"};
+    private final String[] modes = {"Climb Mode", "Collect Mode", "L4 Mode", "L3 Mode", "L2 Mode", "L1 Mode"};
+    private final int[] heights = {2, 30, 78, 55, 25, 3};
     double matchTime = DriverStation.getMatchTime();
+    private int sequenceState = 0; // 追加: ステート管理
+    private boolean sequenceRunning = false; // 追加: シーケンスの実行中フラグ
 
-    public Elevatorcom(Elevatorsub subsystem, Joystick joystick, int upButton, int downButton) {
+    public int getcurrentIndex() {
+        return this.currentIndex;
+    }
+
+    public String[] getmodes() {
+        return this.modes;
+    }
+
+    public Elevatorcom(Elevatorsub subsystem, Goal goal, Climbsub climbsub, Joystick joystick, int upButton, int downButton, int modeChange) {
+    // public Elevetorcom(Elevetorsub subsystem, Joystick joysitck, int rihgtButton, int leftButton, int modeCange) {
         this.elevator = subsystem;
+        this.goal = goal;
+        this.climbsub = climbsub;
         this.joystick = joystick;
         this.upButton = upButton;
         this.downButton = downButton;
+        this.modeChange = modeChange;
         addRequirements(elevator);
     }
-
     
 
     @Override
     public void execute() {
+        
+        climbsub.Climb();
+        elevator.melody();
+        // TargetPosition = heights[currentIndex];
         System.out.println("TargetPosition : " + TargetPosition);
-        boolean upButtonState = joystick.getRawButton(4);  // UP button elevator
-        boolean downButtonState = joystick.getRawButton(1);  // DOWN button elevator
+        boolean upButtonState = (modeChange == 0);  // UP button elevator
+        boolean downButtonState = (modeChange == 180);  // DOWN button elevator
 
         // ボタンが押された瞬間（false -> true）のみ処理
         if (upButtonState && !prevUpButtonState) {
@@ -54,50 +79,76 @@ public class Elevatorcom extends Command {
         // 前回状態を更新
         prevUpButtonState = upButtonState;
         prevDownButtonState = downButtonState;
-
-
-        // ２．うまくいけば３へ
-        // if (joystick.getRawButton(4)) {
-        //     isClimb = true;
-        // } else if (joystick.getRawButton(1)) {
-        //     isClimb = false;
-        // }
-        // if (isClimb) {
-        //     elevator.climbElevator();
-        // } else {
-        //     // elevator.setelev(3);
-        // }
-
-        // ３．マッチタイムでクライムかそうではないかを調整
-        // if (matchTime <= 15.0 && matchTime > 0) {
-        //     if (joystick.getRawButton(8)) {
-        //         elevator.climbElevator();
-        //     } else {
-        //         elevator.setelev(3);
-        //     }
-        // } else {
-        //     if (elevator.getElevatorHeightR() > heights[currentIndex]) {
-        //         elevator.downelev(heights[currentIndex]);
-        //         System.out.println("isDown is working!");
-        //     } else {
-        //         elevator.setelev(heights[currentIndex]);
-        //     }
-        // }
-
         
-        // １．うまく上がれば　２へ進む
+
+        // if (elevator.getElevatorHeightLeft() > TargetPosition) {
+        //     elevator.moveDown(TargetPosition);
+        // } else {
+        //     elevator.setElevatorPosition(TargetPosition);
+        // }
+
         if (joystick.getRawButton(2)) {
-            TargetPosition = 3;
-        } else {
+            TargetPosition = 20;
+            elevator.setElevatorPosition(TargetPosition);
+        }
+        else {
             TargetPosition = 0;
+            elevator.cDown(5);
         }
 
-        elevator.setElevatorPosition(TargetPosition);
+        // if (sequenceRunning) {
+        //     runSequence();
+        // } else if (joystick.getRawButtonPressed(6)) {
+        //     sequenceRunning = true;
+        //     sequenceState = 0;
+        // }
+
+
 
         // System.out.println("Target Position" + TargetPosition);
         System.out.println("ElevatorHeight L" + elevator.getElevatorHeightLeft());
         System.out.println("ElevatorHeight R" + elevator.getElevatorHeightRight());
     }
+
+    // private void runSequence() {
+    //     switch (sequenceState) {
+    //         case 0:
+    //             goal.center();
+    //             sequenceState++;
+    //             break;
+    //         case 1:
+    //             if (goal.isCentered()) {
+    //                 TargetPosition = 45;
+    //                 elevator.setElevatorPosition(TargetPosition);
+    //                 sequenceState++;
+    //             }
+    //             break;
+    //         case 2:
+    //             if (elevator.isAtPosition(TargetPosition)) {
+    //                 goal.right();
+    //                 sequenceState++;
+    //             }
+    //             break;
+    //         case 3:
+    //             if (goal.isRight()) {
+    //                 goal.center();
+    //                 sequenceState++;
+    //             }
+    //             break;
+    //         case 4:
+    //             if (goal.isCentered()) {
+    //                 TargetPosition = 3;
+    //                 elevator.moveDown(TargetPosition);
+    //                 sequenceState++;
+    //             }
+    //             break;
+    //         case 5:
+    //             if (elevator.isAtPosition(TargetPosition)) {
+    //                 sequenceRunning = false;
+    //             }
+    //             break;
+    //     }
+    // }
 
     @Override
     public boolean isFinished() {
