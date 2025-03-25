@@ -22,15 +22,15 @@ public class Elevatorcom extends Command {
     private final int modeChange;
     private double TargetPosition = 0;
     private boolean isDown = false;
-    private boolean prevUpButtonState = false;
-    private boolean prevDownButtonState = false;
+    private int prevPOV = -1;
     private boolean isClimb = false;
-    private int currentIndex = 1;
+    private int currentIndex = 2;
     private final String[] modes = {"Climb Mode", "Collect Mode", "L4 Mode", "L3 Mode", "L2 Mode", "L1 Mode"};
-    private final int[] heights = {2, 30, 78, 55, 25, 3};
+    private final int[] heights = {20, 30, 78, 55, 25, 3};
     double matchTime = DriverStation.getMatchTime();
     private int sequenceState = 0; // 追加: ステート管理
     private boolean sequenceRunning = false; // 追加: シーケンスの実行中フラグ
+    private boolean climbRunning = false;
 
     public int getcurrentIndex() {
         return this.currentIndex;
@@ -55,30 +55,23 @@ public class Elevatorcom extends Command {
 
     @Override
     public void execute() {
-        
-        climbsub.Climb();
-        elevator.melody();
-        // TargetPosition = heights[currentIndex];
-        System.out.println("TargetPosition : " + TargetPosition);
-        boolean upButtonState = (modeChange == 0);  // UP button elevator
-        boolean downButtonState = (modeChange == 180);  // DOWN button elevator
+        System.out.println("Mode is " + modes[currentIndex]);
+        int currentPOV = joystick.getPOV();
 
-        // ボタンが押された瞬間（false -> true）のみ処理
-        if (upButtonState && !prevUpButtonState) {
-            // インデックスの範囲内かチェックし、1段階上げる
-            if (currentIndex < modes.length - 1) {
-                currentIndex++;
+        // POVが変化したときのみ処理
+        if (currentPOV != prevPOV) {
+            if (currentPOV == 180) { // ↓が押されたとき
+                if (currentIndex < modes.length - 1) {
+                    currentIndex++;
+                }
+            } else if (currentPOV == 0) { // ↑が押されたとき
+                if (currentIndex > 0) {
+                    currentIndex--;
+                }
             }
         }
-        if (downButtonState && !prevDownButtonState) {
-            // インデックスの範囲内かチェックし、1段階上げる
-            if (currentIndex > 0) {
-                currentIndex--;
-            }
-        }
-        // 前回状態を更新
-        prevUpButtonState = upButtonState;
-        prevDownButtonState = downButtonState;
+    
+        prevPOV = currentPOV; // 現在のPOVを保存
         
 
         // if (elevator.getElevatorHeightLeft() > TargetPosition) {
@@ -87,68 +80,121 @@ public class Elevatorcom extends Command {
         //     elevator.setElevatorPosition(TargetPosition);
         // }
 
-        if (joystick.getRawButton(2)) {
-            TargetPosition = 20;
-            elevator.setElevatorPosition(TargetPosition);
-        }
-        else {
-            TargetPosition = 0;
-            elevator.cDown(5);
-        }
+        // if (joystick.getRawButton(2)) {
+        //     TargetPosition = 20;
+        //     elevator.setElevatorPosition(TargetPosition);
+        // }
+        // else {
+        //     TargetPosition = 0;
+        //     elevator.climbDown(5);
+        // }
 
         // if (sequenceRunning) {
         //     runSequence();
-        // } else if (joystick.getRawButtonPressed(6)) {
-        //     sequenceRunning = true;
-        //     sequenceState = 0;
+        // } else if (joystick.getRawButtonPressed(6) || joystick.getRawButton(5)) {
+        //     if (currentIndex != 1 && currentIndex != 0) {
+        //         sequenceRunning = true;
+        //         sequenceState = 0;
+        //     }
         // }
 
+        // if (joystick.getRawButton(6)) {
+        //     goal.center();
+        // }
+        // else {
+        //     goal.goal();
+        // }
+
+        if (currentIndex == 0) {
+            if (joystick.getRawButton(4)) {
+                TargetPosition = heights[currentIndex];
+                elevator.setElevatorPosition(TargetPosition);
+            }
+            if (joystick.getRawButton(1)) {
+                elevator.moveDown(2);
+            }
+            if (joystick.getRawButton(5)) {
+                elevator.climbDown(5);
+            }
+            if (joystick.getRawButton(6)) {
+                climbsub.pull();
+            }
+            else{
+
+            }
+        }
+
+        if (currentIndex == 1) {
+            if (joystick.getRawButton(4)) {
+                TargetPosition = selectPosition();
+                elevator.setElevatorPosition(TargetPosition);
+            }
+            if (joystick.getRawButton(1)) {
+                elevator.moveDown(3);
+            }
+        }
+
+        if (currentIndex >= 2 && currentIndex <= 5) {
+            if (joystick.getRawButton(4)) {
+                TargetPosition = heights[currentIndex];
+                elevator.setElevatorPosition(TargetPosition);
+            }
+            if (joystick.getRawButton(1)) {
+                elevator.moveDown(5);
+            }
+        }
 
 
         // System.out.println("Target Position" + TargetPosition);
-        System.out.println("ElevatorHeight L" + elevator.getElevatorHeightLeft());
-        System.out.println("ElevatorHeight R" + elevator.getElevatorHeightRight());
+        // System.out.println("ElevatorHeight L" + elevator.getElevatorHeightLeft());
+        // System.out.println("ElevatorHeight R" + elevator.getElevatorHeightRight());
     }
 
-    // private void runSequence() {
-    //     switch (sequenceState) {
-    //         case 0:
-    //             goal.center();
-    //             sequenceState++;
-    //             break;
-    //         case 1:
-    //             if (goal.isCentered()) {
-    //                 TargetPosition = 45;
-    //                 elevator.setElevatorPosition(TargetPosition);
-    //                 sequenceState++;
-    //             }
-    //             break;
-    //         case 2:
-    //             if (elevator.isAtPosition(TargetPosition)) {
-    //                 goal.right();
-    //                 sequenceState++;
-    //             }
-    //             break;
-    //         case 3:
-    //             if (goal.isRight()) {
-    //                 goal.center();
-    //                 sequenceState++;
-    //             }
-    //             break;
-    //         case 4:
-    //             if (goal.isCentered()) {
-    //                 TargetPosition = 3;
-    //                 elevator.moveDown(TargetPosition);
-    //                 sequenceState++;
-    //             }
-    //             break;
-    //         case 5:
-    //             if (elevator.isAtPosition(TargetPosition)) {
-    //                 sequenceRunning = false;
-    //             }
-    //             break;
-    //     }
-    // }
+    private int selectPosition() {
+        return heights[currentIndex];
+    }
+
+    private void runSequence() {
+        // switch (sequenceState) {
+        //     case 0:
+        //         if (joystick.getRawButton(6)) {
+        //             goal.center();
+        //         }
+        //         sequenceState++;
+        //         break;
+            // case 1:
+            //     if (goal.isCentered()) {
+            //         TargetPosition = selectPosition();
+            //         elevator.setElevatorPosition(TargetPosition);
+            //         sequenceState++;
+            //     }
+            //     break;
+            // case 2:
+            //     if (elevator.isAtPosition(TargetPosition)) {
+            //         goal.right();
+            //         sequenceState++;
+            //     }
+            //     break;
+            // case 3:
+            //     if (goal.isRight()) {
+            //         goal.center();
+            //         sequenceState++;
+            //     }
+            //     break;
+            // case 4:
+            //     if (goal.isCentered()) {
+            //         TargetPosition = 3;
+            //         elevator.moveDown(TargetPosition);
+            //         sequenceState++;
+            //     }
+            //     break;
+            // case 5:
+            //     if (elevator.isAtPosition(TargetPosition)) {
+            //         sequenceRunning = false;
+            //     }
+            //     break;
+        // }
+    }
 
     @Override
     public boolean isFinished() {

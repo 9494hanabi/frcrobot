@@ -38,20 +38,20 @@ public class Goal extends SubsystemBase {
     }
 
     public void center() {
-        double setpoint = 1.25;
+        double setpoint = 1.085;
         double output = pidController.calculate(getsenaTalon(), setpoint);
-        senaTalon.set(output * 0.5);
+        senaTalon.set(output * 0.4);
     }
 
     public boolean isCentered() {
-        double setpoint = 1.25;
+        double setpoint = 1.085;
         return Math.abs(getsenaTalon() - setpoint) < 0.05; // 目標値との誤差が0.05以下なら「到達」
     }
     
     public void right() {
         double setpoint = 2.25;
         double output = pidController.calculate(getsenaTalon(), setpoint);
-        senaTalon.set(output * 0.5);
+        senaTalon.set(output * 0.2);
     }
 
     public boolean isRight() {
@@ -68,14 +68,14 @@ public class Goal extends SubsystemBase {
 
 
         System.out.println("Senatalon encordar :" + senaTalon.getPosition().getValueAsDouble());
-        if (POVangle == 270) {
+        if (joystick.getRawButton(5)) {
             setpoint = 2.25;
             redLineMotor.set(0.1);
-        } else if (POVangle == 90) {
+        } else if (joystick.getRawButton(6)) {
             setpoint = 0.3;
             redLineMotor.set(0.1);
         } else {
-            setpoint = 1.25;
+            setpoint = 1.085;
             redLineMotor.set(-0.1);
 
         }

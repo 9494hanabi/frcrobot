@@ -27,7 +27,6 @@ public class RobotContainer {
     private final VisionSubsystem visionSubsystem = new VisionSubsystem("photoncamera");
     private final Goal goalSubsystem = new Goal(joystick);
     private final Climbsub climbsub = new Climbsub(joystick);
-
     private final SendableChooser<Command> autoChooser = new SendableChooser<>();
 
     public RobotContainer() {
@@ -45,26 +44,21 @@ public class RobotContainer {
         //     swerveSubsystem, 
         //     xSpeedSupplier, 
         //     ySpeedSupplier, 
-        //     rotSpeedSupplier));
+        //     rotSpeedSupplier,
+        //     joystick));
         goalSubsystem.setDefaultCommand(new Goalcom(goalSubsystem));
         // visionSubsystem.setDefaultCommand(new MoveCenter(swerveSubsystem, visionSubsystem));
     }
 
     private void configureButtonBindings() {
-        // new JoystickButton(joystick, 3)
-        //         .onTrue(new MoveCenter(swerveSubsystem, visionSubsystem));
-        if (joystick.getRawButton(7)){
-            System.out.println("reset");
-            swerveSubsystem.getHeading();
-        }
-        if (joystick.getRawButton(8)) {
-            System.out.println("play music");
-            elevatorSubsystem.melody();
-        }
-        // new JoystickButton(joystick, 5)
-        //         .onTrue(new Elevatorcom(elevatorSubsystem, joystick, 5, 6, joystick.getPOV()));
-        // new JoystickButton(joystick, 6)
-        //         .onTrue(new Elevatorcom(elevatorSubsystem, joystick, 5 , 6, joystick.getPOV()));
+        new JoystickButton(joystick, 3)
+                .onTrue(new MoveCenter(swerveSubsystem, visionSubsystem));
+        // if (joystick.getRawButton(7)){
+        //     System.out.println("reset");
+        //     swerveSubsystem.getHeading();
+        // }
+        // if (joystick.getRawButton(8)) {
+        // }
     }
 
     public Command getAutonomousCommand() {

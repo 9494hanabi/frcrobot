@@ -58,7 +58,7 @@ public class Swerve extends SubsystemBase {
   }
 
   public Rotation2d getHeading() {
-    return Rotation2d .fromDegrees(navx.getYaw() + 25);
+    return Rotation2d .fromDegrees(navx.getYaw());
   }
 
   public double getYaw() {
@@ -95,8 +95,12 @@ public class Swerve extends SubsystemBase {
 
   public void resetHeading() {
     navx.reset();
-    odometry.resetPosition(getHeading(), getModulePositions(), new Pose2d());
-  }
+    odometry.resetPosition(
+        Rotation2d.fromDegrees(0), // navx resetした直後 = 0度を前提
+        getModulePositions(),
+        new Pose2d(getPose().getTranslation(), new Rotation2d()) // 向きだけゼロにする
+    );
+}
 
   public ChassisSpeeds getChassisSpeeds() {
     return new ChassisSpeeds(0.0, 0.0, 0.0);

@@ -30,8 +30,6 @@ public class Elevatorsub extends SubsystemBase {
         TalonFXConfiguration configLeft = new TalonFXConfiguration();
         TalonFXConfiguration configRight = new TalonFXConfiguration();
         
-        // ElevatorFeedforward のパラメータは各ロボットに合わせて調整してください
-        // elevatorFF = new ElevatorFeedforward(0.2, 0.5, 2.0, 0.1);
         // ブレーキモード設定
         leftElevatorMotor.setNeutralMode(NeutralModeValue.Brake);
         rightElevatorMotor.setNeutralMode(NeutralModeValue.Brake);
@@ -44,7 +42,7 @@ public class Elevatorsub extends SubsystemBase {
         leftElevatorMotor.setPosition(0);
         rightElevatorMotor.setPosition(0);
         
-        // PID コントローラの初期化（P, I, D はチューニング必須）
+        // PID コントローラの初期化
         pidController = new PIDController(0.4, 0.0, 0.0);
         pidController.setTolerance(0.005);
         
@@ -81,32 +79,17 @@ public class Elevatorsub extends SubsystemBase {
         double outputLeft = pidController.calculate(getElevatorHeightLeft(), targetPosition);
         double outputRight = pidController.calculate(getElevatorHeightRight(), -targetPosition);
         if (getElevatorHeightLeft() >= targetPosition) {
-            leftElevatorMotor.set(0.02 + (outputLeft * 0.05));
-            rightElevatorMotor.set(-0.02 + (outputRight * 0.05));
+            leftElevatorMotor.set(0.02 + (outputLeft * 0.03));
+            rightElevatorMotor.set(-0.02 + (outputRight * 0.03));
         }
     }
 
-    public void cDown(double targetPosition) {
+    public void climbDown(double targetPosition) {
         double outputLeft = pidController.calculate(getElevatorHeightLeft(), targetPosition);
         double outputRight = pidController.calculate(getElevatorHeightRight(), -targetPosition);
         if (getElevatorHeightLeft() >= targetPosition) {
             leftElevatorMotor.set(0.02 + (outputLeft * 0.08));
             rightElevatorMotor.set(-0.02 + (outputRight * 0.08));
-        }
-    }
-    
-    /**
-     * クライミング時の動作。エレベーターを特定の速度・出力で動作させる例。
-     */
-    public void climbElevator() {
-        // double velocity = rightElevatorMotor.getVelocity().getValueAsDouble();
-        // double acceleration = rightElevatorMotor.getAcceleration().getValueAsDouble();
-        // double voltage = elevatorFF.calculate(velocity, acceleration);
-        // double outputLeft = climbPidController.calculate(getElevatorHeightLeft(), 0.18);
-        // double outputRight = climbPidController.calculate(getElevatorHeightRight(), 0.18);
-        if (getElevatorHeightRight() > 0.1) {
-            leftElevatorMotor.set(0.87);
-            rightElevatorMotor.set(-0.87);
         }
     }
     
@@ -123,26 +106,5 @@ public class Elevatorsub extends SubsystemBase {
         boolean rightAtPosition = Math.abs(getElevatorHeightRight() + targetPosition) < tolerance; // 右は負の方向なので符号反転
     
         return leftAtPosition && rightAtPosition;
-    }
-
-    // public double resetHight() {
-    //     return 0.0;
-    // }
-    
-
-    @SuppressWarnings("resource")
-    public void melody() {
-    Orchestra m_orchestra = new Orchestra();
-        // Add a single device to the orchestra
-        m_orchestra.addInstrument(rightElevatorMotor);
-
-        // Attempt to load the chrp
-        var status = m_orchestra.loadMusic("yorusika.chrp");
-
-        m_orchestra.play();
-
-        if (!status.isOK()) {
-        // log error
-        }
     }
 }
