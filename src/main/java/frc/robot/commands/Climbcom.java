@@ -1,21 +1,38 @@
-// package frc.robot.commands;
+package frc.robot.commands;
 
-// import frc.robot.subsystems.Climb;
-// import edu.wpi.first.wpilibj.Joystick;
-// import edu.wpi.first.wpilibj.motorcontrol.PWMTalonSRX;
-// import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.subsystems.Climbsub;
+import frc.robot.Mode;
+import frc.robot.ModeManager;
 
-// public class Climbcom extends Command{
-//     private final PWMTalonSRX ClimbRight;
-//     private final PWMTalonSRX ClimbLeftl;
-//     private final Joystick joysitck;
-   
-//     public Climbcom(Climbsub climbSubsystem, Joystick joystick) {
-//         this.joysitck = joystick;
-//         addRequirements();
-//     }
+public class Climbcom extends Command {
+    private final Climbsub climbsub;
+    private final ModeManager modeManager;
+    private final Runnable action;
 
-//     public void execute() {
+    public Climbcom(Climbsub climbsub, ModeManager modeManager, Runnable action) {
+        this.climbsub = climbsub;
+        this.modeManager = modeManager;
+        this.action = action;
+        addRequirements(climbsub);
+    }
 
-//     }
-// }
+    @Override
+    public void execute() {
+        if (modeManager.getCurrentMode() == Mode.CLIMB) {
+            action.run(); // Mode.CLIMBのときだけ動作
+        } else {
+            climbsub.dontpull(); // セーフティ
+        }
+    }
+
+    @Override
+    public void end(boolean interrupted) {
+        climbsub.dontpull(); // 安全確保
+    }
+
+    @Override
+    public boolean isFinished() {
+        return false;
+    }
+}

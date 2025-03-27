@@ -13,9 +13,6 @@ public class TeleopSwervecom extends Command{
     private final DoubleSupplier forwardSupplier;
     private final DoubleSupplier starfeSupplier;
     private final DoubleSupplier turnSupplier;
-    private boolean resetButtonPreviouslyPressed = false;
-
-    private Joystick joystick;
 
     public TeleopSwervecom(Swerve swerveSubsystem, 
                             DoubleSupplier forwardSupplier, 
@@ -26,7 +23,6 @@ public class TeleopSwervecom extends Command{
         this.forwardSupplier = forwardSupplier;
         this.starfeSupplier = starfeSupplier;
         this.turnSupplier = turnSupplier;
-        this.joystick = joystick;
         addRequirements(swerveSubsystem);
     }
 
@@ -51,12 +47,6 @@ public class TeleopSwervecom extends Command{
 
         Rotation2d robotRotaion = swerveSubsystem.getHeading().unaryMinus();
         ChassisSpeeds fieldRlativeSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rotationSpeed, robotRotaion);
-
-        boolean resetButtonPressed = joystick.getRawButton(3);
-
-        if (resetButtonPressed && !resetButtonPreviouslyPressed) {
-            swerveSubsystem.resetHeading();
-        }
 
         swerveSubsystem.drive(fieldRlativeSpeeds,null);
     }
