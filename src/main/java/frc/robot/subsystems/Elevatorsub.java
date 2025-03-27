@@ -88,8 +88,8 @@ public class Elevatorsub extends SubsystemBase {
         double outputLeft = pidController.calculate(getElevatorHeightLeft(), targetPosition);
         double outputRight = pidController.calculate(getElevatorHeightRight(), -targetPosition);
         if (getElevatorHeightLeft() >= targetPosition) {
-            leftElevatorMotor.set(0.02 + (outputLeft * 0.08));
-            rightElevatorMotor.set(-0.02 + (outputRight * 0.08));
+            leftElevatorMotor.set(0.02 + (outputLeft * 0.18));
+            rightElevatorMotor.set(-0.02 + (outputRight * 0.18));
         }
     }
     
@@ -106,5 +106,10 @@ public class Elevatorsub extends SubsystemBase {
         boolean rightAtPosition = Math.abs(getElevatorHeightRight() + targetPosition) < tolerance; // 右は負の方向なので符号反転
     
         return leftAtPosition && rightAtPosition;
+    }
+
+    public void stopElevator() {
+        leftElevatorMotor.set(0.02);
+        rightElevatorMotor.set(0.02);
     }
 }

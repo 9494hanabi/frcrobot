@@ -67,23 +67,27 @@ public class Goal extends SubsystemBase {
         // System.out.println("this is " + POVangle);
 
 
-        System.out.println("Senatalon encordar :" + senaTalon.getPosition().getValueAsDouble());
+        // System.out.println("Senatalon encordar :" + senaTalon.getPosition().getValueAsDouble());
         if (joystick.getRawButton(5)) {
-            setpoint = 2.25;
-            redLineMotor.set(0.1);
+            setpoint = -1.95;
+            if (joystick.getRawButton(3)) {
+                redLineMotor.set(0.5);
+            }
         } else if (joystick.getRawButton(6)) {
-            setpoint = 0.3;
-            redLineMotor.set(0.1);
+            setpoint = -0.5;
+            if (joystick.getRawButton(3)) {
+                redLineMotor.set(0.5);
+            }
         } else {
-            setpoint = 1.085;
-            redLineMotor.set(-0.1);
+            setpoint = -1.33;
+            redLineMotor.set(-0.2);
 
         }
 
         double output = pidController.calculate(getsenaTalon(), setpoint);
         senaTalon.set(output * 0.5);
 
-        System.out.println("output : " + output);
+        // System.out.println("output : " + output);
 
 
         // if (POVangle == 90) {

@@ -32,10 +32,12 @@ public class TeleopSwervecom extends Command{
 
     @Override
     public void execute() {
+
+        System.out.println("Yaw Value is " + swerveSubsystem.getYaw());
         
-        double forwardInput = forwardSupplier.getAsDouble();
-        double starfeInput = starfeSupplier.getAsDouble();
-        double turnInput = turnSupplier.getAsDouble();
+        double forwardInput = forwardSupplier.getAsDouble()*0.5;
+        double starfeInput = starfeSupplier.getAsDouble()*0.5;
+        double turnInput = -turnSupplier.getAsDouble();
 
         double xSpeed = -forwardInput * swerveSubsystem.getMaxLinearVelocityMetersPerSec();
         double ySpeed = -starfeInput * swerveSubsystem.getMaxLinearVelocityMetersPerSec();
@@ -43,9 +45,9 @@ public class TeleopSwervecom extends Command{
 
         
 
-        if (Math.abs(xSpeed) < 0.01) xSpeed = 0;
-        if (Math.abs(ySpeed) < 0.01) ySpeed = 0;
-        if (Math.abs(rotationSpeed) < 0.01) rotationSpeed = 0;
+        if (Math.abs(xSpeed) < 0.03) xSpeed = 0;
+        if (Math.abs(ySpeed) < 0.03) ySpeed = 0;
+        if (Math.abs(rotationSpeed) < 0.03) rotationSpeed = 0;
 
         Rotation2d robotRotaion = swerveSubsystem.getHeading().unaryMinus();
         ChassisSpeeds fieldRlativeSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rotationSpeed, robotRotaion);
@@ -56,8 +58,7 @@ public class TeleopSwervecom extends Command{
             swerveSubsystem.resetHeading();
         }
 
-        swerveSubsystem.drive(fieldRlativeSpeeds, null);
-
+        swerveSubsystem.drive(fieldRlativeSpeeds,null);
     }
 
     @Override

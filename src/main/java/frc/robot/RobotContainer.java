@@ -40,13 +40,13 @@ public class RobotContainer {
 
     private void ConfigureDefaultCommands() {
         elevatorSubsystem.setDefaultCommand(new Elevatorcom(elevatorSubsystem, goalSubsystem, climbsub, joystick, 1, 2, joystick.getPOV()));
-        // swerveSubsystem.setDefaultCommand(new TeleopSwervecom(
-        //     swerveSubsystem, 
-        //     xSpeedSupplier, 
-        //     ySpeedSupplier, 
-        //     rotSpeedSupplier,
-        //     joystick));
-        goalSubsystem.setDefaultCommand(new Goalcom(goalSubsystem));
+        swerveSubsystem.setDefaultCommand(new TeleopSwervecom(
+            swerveSubsystem, 
+            xSpeedSupplier, 
+            ySpeedSupplier, 
+            rotSpeedSupplier,
+            joystick));
+        // goalSubsystem.setDefaultCommand(new Goalcom(goalSubsystem));
         // visionSubsystem.setDefaultCommand(new MoveCenter(swerveSubsystem, visionSubsystem));
     }
 

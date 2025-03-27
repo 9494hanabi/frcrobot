@@ -3,6 +3,7 @@ package frc.robot.subsystems.Swerve;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -23,6 +24,9 @@ public class Swerve extends SubsystemBase {
 
   private final double trackWidhMeters = 0.675;
   private final double trackLengthMeters = 0.675;
+
+  // ロボットの中心からNavXまでのオフセット（前方に0.2m）
+  private final Translation2d navxOffset = new Translation2d(0.0, -0.25); 
 
   private final double limitspeed = 1;
   private final double maxLinearVelocityMetersPerSec = Module.getwheelMaxLinearVelocity() / limitspeed;
@@ -58,7 +62,7 @@ public class Swerve extends SubsystemBase {
   }
 
   public Rotation2d getHeading() {
-    return Rotation2d .fromDegrees(navx.getYaw());
+    return Rotation2d .fromDegrees(navx.getYaw() - 21);
   }
 
   public double getYaw() {
@@ -69,6 +73,7 @@ public class Swerve extends SubsystemBase {
     return navx.isConnected();
   }
 
+  //soutai seigyo
   public void drive(ChassisSpeeds desiredSpeeds, DriveFeedforwards feedforwards) {
     SwerveModuleState[] targetModuleSpeed = kinematics.toSwerveModuleStates(desiredSpeeds);
     SwerveDriveKinematics.desaturateWheelSpeeds(targetModuleSpeed, Module.getwheelMaxLinearVelocity());
@@ -85,9 +90,23 @@ public class Swerve extends SubsystemBase {
     });
   }
 
-  public Pose2d getPose() {
-    return odometry.getPoseMeters();
+  //not soutai seigyo
+  public void notrelativedrive(ChassisSpeeds desiredSpeeds){
+    SwerveModuleState[] targetModuleSpeed = kinematics.toSwerveModuleStates(desiredSpeeds);
+    SwerveDriveKinematics.desaturateWheelSpeeds(targetModuleSpeed, Module.getwheelMaxLinearVelocity());
+
+    for (int i = 0; i < modules.length; i++) {
+      modules[i].run(targetModuleSpeed[i]);
+    }
   }
+
+  public Pose2d getPose() {
+        // 現在のポーズを取得
+        Pose2d currentPose = odometry.getPoseMeters();
+        
+        // NavXのオフセットを適用
+        return currentPose.transformBy(new Transform2d(navxOffset, new Rotation2d()));
+    }
 
   public void resetOdometry(Pose2d pose) {
     odometry.resetPosition(navx.getRotation2d(), getModulePositions(), pose);

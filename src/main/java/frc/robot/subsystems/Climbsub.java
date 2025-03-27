@@ -44,4 +44,9 @@ public class Climbsub extends SubsystemBase{
         ClimbLeft.set(0);
         ClimbRight.set(0);
     }
+
+    public void push() {
+        ClimbLeft.set(0.5);
+        ClimbRight.set(0.5);
+    }
 }

@@ -6,6 +6,8 @@ import edu.wpi.first.wpilibj.Joystick;
 
 import java.lang.annotation.Target;
 
+import javax.lang.model.util.ElementScanner7;
+
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Climbsub;
@@ -23,10 +25,12 @@ public class Elevatorcom extends Command {
     private double TargetPosition = 0;
     private boolean isDown = false;
     private int prevPOV = -1;
+    private boolean prevElevUp = false;
+    private boolean prevElevDown = false;
     private boolean isClimb = false;
-    private int currentIndex = 2;
+    private int currentIndex = 5;
     private final String[] modes = {"Climb Mode", "Collect Mode", "L4 Mode", "L3 Mode", "L2 Mode", "L1 Mode"};
-    private final int[] heights = {20, 30, 78, 55, 25, 3};
+    private final int[] heights = {40, 30, 45, 45, 20, 3};
     double matchTime = DriverStation.getMatchTime();
     private int sequenceState = 0; // 追加: ステート管理
     private boolean sequenceRunning = false; // 追加: シーケンスの実行中フラグ
@@ -55,6 +59,7 @@ public class Elevatorcom extends Command {
 
     @Override
     public void execute() {
+        System.out.println("height is " + elevator.getElevatorHeightLeft());
         System.out.println("Mode is " + modes[currentIndex]);
         int currentPOV = joystick.getPOV();
 
@@ -105,42 +110,57 @@ public class Elevatorcom extends Command {
         //     goal.goal();
         // }
 
+        if (TargetPosition <= elevator.getElevatorHeightLeft()) {
+            elevator.moveDown(TargetPosition);
+        }
+        else {   
+        elevator.setElevatorPosition(TargetPosition);
+        }
+
+        if (joystick.getRawButton(1)) {
+            currentIndex = 5;
+            TargetPosition = heights[currentIndex];
+        }
+
+
+
         if (currentIndex == 0) {
             if (joystick.getRawButton(4)) {
                 TargetPosition = heights[currentIndex];
-                elevator.setElevatorPosition(TargetPosition);
-            }
-            if (joystick.getRawButton(1)) {
-                elevator.moveDown(2);
             }
             if (joystick.getRawButton(5)) {
+                TargetPosition = 25;
+            }
+            if (joystick.getRawButton(7)) {
                 elevator.climbDown(5);
             }
+
+            //巻き取り用のレッドラインモーターの設定（６で巻き取り、ボタンを押さなければ停止。8を押せば逆転（緊急用））
             if (joystick.getRawButton(6)) {
                 climbsub.pull();
             }
             else{
-
+                climbsub.dontpull();
+            }
+            if (joystick.getRawButton(8)) {
+                climbsub.push();
+            }
+            else{
+                climbsub.dontpull();
             }
         }
 
         if (currentIndex == 1) {
             if (joystick.getRawButton(4)) {
                 TargetPosition = selectPosition();
-                elevator.setElevatorPosition(TargetPosition);
-            }
-            if (joystick.getRawButton(1)) {
-                elevator.moveDown(3);
             }
         }
 
         if (currentIndex >= 2 && currentIndex <= 5) {
+            goal.goal();
             if (joystick.getRawButton(4)) {
                 TargetPosition = heights[currentIndex];
                 elevator.setElevatorPosition(TargetPosition);
-            }
-            if (joystick.getRawButton(1)) {
-                elevator.moveDown(5);
             }
         }
 
