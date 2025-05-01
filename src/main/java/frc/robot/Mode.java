@@ -1,9 +1,9 @@
 package frc.robot;
 
 public enum Mode {
-    CLIMB("Climb Mode", 40),
-    COLLECT("Collect Mode", 30),
-    L4("L4 Mode", 45),
+    CLIMB("Climb Mode", 33),
+    COLLECT("Collect Mode", 45),
+    L4("L4 Mode", 79),
     L3("L3 Mode", 45),
     L2("L2 Mode", 20),
     L1("L1 Mode", 3);

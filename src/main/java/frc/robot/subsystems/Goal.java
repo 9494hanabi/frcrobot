@@ -6,6 +6,8 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.motorcontrol.PWMSparkMax;
 
 public class Goal extends SubsystemBase {
@@ -26,7 +28,7 @@ public class Goal extends SubsystemBase {
         senaTalon.setNeutralMode(NeutralModeValue.Brake);
         senaTalon.getConfigurator().apply(configsena);
         senaTalon.setPosition(0);
-        pidController = new PIDController(0.25,0, 0);
+        pidController = new PIDController(0.6,0, 0);
     }
 
     public double getsenaTalon() {
@@ -34,25 +36,30 @@ public class Goal extends SubsystemBase {
     }
 
     public void goal(boolean isLeft, boolean isRight, boolean isShoot) {
-        double setpoint;
     
-        if (isLeft) {
-            setpoint = -1.95;
-            if (isShoot) {
-                redLineMotor.set(0.5);
-            }
-        } else if (isRight) {
-            setpoint = -0.5;
-            if (isShoot) {
-                redLineMotor.set(0.5);
-            }
-        } else {
-            setpoint = -1.33;
-            redLineMotor.set(-0.1); // 常に軽く回す（吸引なし）
+        if (DriverStation.isAutonomousEnabled()) {
         }
-    
-        double output = pidController.calculate(getsenaTalon(), setpoint);
-        senaTalon.set(output * 0.5);
+        else {
+            double setpoint;
+            if (isLeft) {
+                setpoint = -1.68;
+                if (isShoot) {
+                    redLineMotor.set(0.5);
+                }
+            } else if (isRight) {
+                setpoint = -0.5;
+                if (isShoot) {
+                    redLineMotor.set(0.5);
+                }
+            } else {
+                setpoint = -1.33;
+                redLineMotor.set(-0.5); // 常に軽く回す
+            }
+            double output = pidController.calculate(getsenaTalon(), setpoint);
+            // System.out.println("SenaTalon is" + output);
+            senaTalon.set(output * 0.4);
+        }
+        
     }
     
 

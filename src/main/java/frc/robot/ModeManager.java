@@ -1,7 +1,7 @@
 package frc.robot;
 
 public class ModeManager {
-    private Mode currentMode = Mode.L1; // 初期モード
+    private Mode currentMode = Mode.L4; // 初期モード
 
     public Mode getCurrentMode() {
         return currentMode;

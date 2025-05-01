@@ -14,22 +14,16 @@ public class Elevatorcom extends Command {
     private final BooleanSupplier moveUpButton;
     private final BooleanSupplier goToL1Supplier;
     private final BooleanSupplier climbMidSupplier;
-    private final BooleanSupplier climbDownSupplier;
     private double TargetPosition = 0;
     private boolean prevMoveUpPressed = false;
     double matchTime = DriverStation.getMatchTime();
 
-    // public String[] getmodes() {
-    //     return this.modes;
-    // }
-
-    public Elevatorcom(Elevatorsub subsystem, ModeManager modeManager, BooleanSupplier moveUpButton, BooleanSupplier goToL1Supplier, BooleanSupplier climbMidSupplier, BooleanSupplier climbDownSupplier) {
+    public Elevatorcom(Elevatorsub subsystem, ModeManager modeManager, BooleanSupplier moveUpButton, BooleanSupplier goToL1Supplier, BooleanSupplier climbMidSupplier) {
         this.elevator = subsystem;
         this.modeManager = modeManager;
         this.moveUpButton = moveUpButton;
         this.goToL1Supplier = goToL1Supplier;
         this.climbMidSupplier = climbMidSupplier;
-        this.climbDownSupplier = climbDownSupplier;
         addRequirements(elevator);
     }
     
@@ -37,14 +31,14 @@ public class Elevatorcom extends Command {
     @Override
     public void execute() {
         boolean nowPressed = moveUpButton.getAsBoolean();
-        System.out.println("height is " + elevator.getElevatorHeightLeft());
+        // System.out.println("height is " + elevator.getElevatorHeightLeft());
         Mode currentMode = modeManager.getCurrentMode();
         System.out.println("Mode is " + currentMode.getLabel());
 
         if (nowPressed && !prevMoveUpPressed) {
             // 押された瞬間だけTargetPositionを更新
             TargetPosition = currentMode.getTargetHeight();
-            System.out.println("New TargetPosition set: " + TargetPosition);
+            // System.out.println("New TargetPosition set: " + TargetPosition);
         }
     
 
@@ -64,10 +58,7 @@ public class Elevatorcom extends Command {
 
         if (currentMode == Mode.CLIMB) {
             if (climbMidSupplier.getAsBoolean()) {
-                TargetPosition = 25;
-            }
-            if (climbDownSupplier.getAsBoolean()) {
-                elevator.climbDown(5);
+                TargetPosition = 28;
             }
         }
 
@@ -77,6 +68,7 @@ public class Elevatorcom extends Command {
         if (currentMode == Mode.L4 || currentMode == Mode.L3 || currentMode == Mode.L2 || currentMode == Mode.L1) {
         }
     }
+
 
     @Override
     public boolean isFinished() {

@@ -10,7 +10,10 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Mode;
+import frc.robot.ModeManager;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.config.ModuleConfig;
 import com.pathplanner.lib.util.DriveFeedforwards;
@@ -27,10 +30,9 @@ public class Swerve extends SubsystemBase {
 
   // ロボットの中心からNavXまでのオフセット（前方に0.2m）
   private final Translation2d navxOffset = new Translation2d(0.0, -0.25); 
-
   private final double limitspeed = 1;
   private final double maxLinearVelocityMetersPerSec = Module.getwheelMaxLinearVelocity() / limitspeed;
-  private final double maxAngularVelocityRadiansPerSec = (Module.getwheelMaxLinearVelocity() / limitspeed) / Math.hypot(trackLengthMeters, trackWidhMeters);
+  private final double maxAngularVelocityRadiansPerSec = (Module.getwheelMaxLinearVelocity() / (limitspeed * 1.3)) / Math.hypot(trackLengthMeters, trackWidhMeters);
 
   public Swerve() {
 
@@ -62,7 +64,7 @@ public class Swerve extends SubsystemBase {
   }
 
   public Rotation2d getHeading() {
-    return Rotation2d .fromDegrees(navx.getYaw() - 21);
+    return Rotation2d .fromDegrees(navx.getYaw());
   }
 
   public double getYaw() {
@@ -75,6 +77,7 @@ public class Swerve extends SubsystemBase {
 
   //soutai seigyo
   public void drive(ChassisSpeeds desiredSpeeds, DriveFeedforwards feedforwards) {
+    // System.out.println(desiredSpeeds.vxMetersPerSecond);
     SwerveModuleState[] targetModuleSpeed = kinematics.toSwerveModuleStates(desiredSpeeds);
     SwerveDriveKinematics.desaturateWheelSpeeds(targetModuleSpeed, Module.getwheelMaxLinearVelocity());
 
@@ -137,7 +140,7 @@ public class Swerve extends SubsystemBase {
   public void configureAutoBuilder() {
     try {
       RobotConfig.fromGUISettings();
-      System.out.println("Apply GUI settings");
+      // System.out.println("Apply GUI settings");
       new RobotConfig(
         30,
         6.883,
@@ -150,7 +153,7 @@ public class Swerve extends SubsystemBase {
     }
     catch (Exception e) {
       e.printStackTrace();
-      System.out.println("GUI settings not found");
+      // System.out.println("GUI settings not found");
     }
   }
 }

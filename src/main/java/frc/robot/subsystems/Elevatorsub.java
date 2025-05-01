@@ -16,6 +16,9 @@ public class Elevatorsub extends SubsystemBase {
     private final PIDController pidController;
     private final PIDController climbPidController;
     public Object m_orchestra;
+
+    //クライム用のフラグ
+    private boolean isClimbingDown = false;
     
     // フィードフォワード（エレベーター特性に合わせたパラメータ）
     // private final ElevatorFeedforward elevatorFF;
@@ -65,8 +68,8 @@ public class Elevatorsub extends SubsystemBase {
     public void setElevatorPosition(double targetPosition) {
         double outputLeft = pidController.calculate(getElevatorHeightLeft(), targetPosition);
         double outputRight = pidController.calculate(getElevatorHeightRight(), -targetPosition);
-        System.out.println("left: " + outputLeft);
-        System.out.println("right: " + outputRight);
+        // System.out.println("left: " + outputLeft);
+        // System.out.println("right: " + outputRight);
         leftElevatorMotor.set(outputLeft * 0.05);
         rightElevatorMotor.set(outputRight * 0.05);
     }
@@ -110,5 +113,24 @@ public class Elevatorsub extends SubsystemBase {
     public void stopElevator() {
         leftElevatorMotor.set(0.02);
         rightElevatorMotor.set(0.02);
+    }
+
+    public void enableClimbHold() {
+        isClimbingDown = true;
+    }
+    
+    public void disableClimbHold() {
+        isClimbingDown = false;
+    }
+    
+    public boolean isClimbHoldActive() {
+        return isClimbingDown;
+    }
+
+    @Override
+    public void periodic() {
+        if (isClimbingDown) {
+            climbDown(5); // あるいは適切な保持電圧を手で指定してもいい
+        }
     }
 }

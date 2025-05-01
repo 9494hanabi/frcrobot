@@ -54,7 +54,7 @@ public class MoveCenter extends Command {
 
             ChassisSpeeds optChassisSpeeds = new ChassisSpeeds(-forwardOp, strafeOp, turnOp);
 
-            System.out.println("optChassis : " + optChassisSpeeds);
+            // System.out.println("optChassis : " + optChassisSpeeds);
             swerve.drive(optChassisSpeeds, null); // フィールドオリエンテーションを考慮
         }
     }

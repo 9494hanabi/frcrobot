@@ -1,13 +1,14 @@
 package frc.robot;
 
 import edu.wpi.first.math.MathUtil;
+import com.pathplanner.lib.commands.PathPlannerAuto;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-import static frc.robot.TriggerUtils.*;
+import static frc.robot.POVEdgeTrigger.*;
 import frc.robot.commands.Climbcom;
 import frc.robot.commands.Elevatorcom;
 import frc.robot.commands.Goalcom;
@@ -23,7 +24,7 @@ public class RobotContainer {
 
     private final DoubleSupplier xSpeedSupplier = () -> MathUtil.applyDeadband(joystick.getRawAxis(1), 0.05);
     private final DoubleSupplier ySpeedSupplier = () -> MathUtil.applyDeadband(joystick.getRawAxis(0), 0.05);
-    private final DoubleSupplier rotSpeedSupplier = () -> MathUtil.applyDeadband(-joystick.getRawAxis(4), 0.1);
+    private final DoubleSupplier rotSpeedSupplier = () -> MathUtil.applyDeadband(joystick.getRawAxis(4), 0.1);
 
     private final Elevatorsub elevatorSubsystem = new Elevatorsub();
     private final Swerve swerveSubsystem = new Swerve();
@@ -35,12 +36,14 @@ public class RobotContainer {
 
     public RobotContainer() {
 
-        autoChooser.setDefaultOption("DefaultAuto", null);
-        SmartDashboard.putData("Auto Mode", autoChooser);
+        // autoChooser.setDefaultOption("New Auto", null);
+        // SmartDashboard.putData("Auto Mode", autoChooser);
 
         ConfigureDefaultCommands();
         configureButtonBindings();
     }
+
+    public Swerve getSwerve() { return swerveSubsystem;}
 
     private void ConfigureDefaultCommands() {
         elevatorSubsystem.setDefaultCommand(
@@ -49,10 +52,9 @@ public class RobotContainer {
                 modeManager,
                 () -> joystick.getRawButton(4), // moveUpButton
                 () -> joystick.getRawButton(1), // goToL1
-                () -> joystick.getRawButton(5), // climbMid
-                () -> joystick.getRawButton(7)  // climbDown
+                () -> joystick.getRawButton(5) // climbMid
             )
-        );     
+        );    
         swerveSubsystem.setDefaultCommand(new TeleopSwervecom(
             swerveSubsystem, 
             xSpeedSupplier, 
@@ -74,24 +76,29 @@ public class RobotContainer {
     }
 
     private void configureButtonBindings() {
-        new JoystickButton(joystick, 3)
-            .onTrue(new MoveCenter(swerveSubsystem, visionSubsystem));
 
         new JoystickButton(joystick, 6) // 巻き取り
             .whileTrue(new Climbcom(climbsub, modeManager, () -> climbsub.pull()));
+
+        new JoystickButton(joystick, 7)
+            .onTrue(new InstantCommand(() -> elevatorSubsystem.enableClimbHold()));
         
         new JoystickButton(joystick, 8) // 押し出し
             .whileTrue(new Climbcom(climbsub, modeManager, () -> climbsub.push()));
+        new JoystickButton(joystick, 9)
+            .onTrue(new InstantCommand(() -> elevatorSubsystem.disableClimbHold()));
+
         // POVでモード切り替え
 
-        povEdge(joystick, 0) // POV上
-        .onTrue(new InstantCommand(() -> modeManager.moveUp()));
-    
-        povEdge(joystick, 180) // POV下
-        .onTrue(new InstantCommand(() -> modeManager.moveDown()));
+        POVEdgeTrigger upTrigger = new POVEdgeTrigger(joystick, 0);
+        POVEdgeTrigger downTrigger = new POVEdgeTrigger(joystick, 180);
+        
+        upTrigger.getTrigger().onTrue(new InstantCommand(() -> modeManager.moveUp()));
+        downTrigger.getTrigger().onTrue(new InstantCommand(() -> modeManager.moveDown()));
+        
     }
 
-    public Command getAutonomousCommand() {
-        return autoChooser.getSelected();
-    }
+    // public Command getAutonomousCommand() {
+    //     return new PathPlannerAuto("New Auto");
+    // }
 }
